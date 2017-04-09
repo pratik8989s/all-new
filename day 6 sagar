@@ -1,0 +1,191 @@
+Practice 3
+
+• Create user defined data type named “ICECREAM_TYPE” with the following data members
+
+Column	Data type and size
+flovorNo	NUMBER(2)
+Fname	VARCHAR(10)
+Cost	NUMBER(3)
+Hastopping	CHAR(1)   
+Can be Y or N
+
+• Create table named “menu” with the following design and insert five records into it.
+
+Column	Data type and size	Constraint
+MenuNo	NUMBER(2)	Primary key
+mainCourse	VARCHAR2(15)	Not Null
+Desert	ICECREAM_TYPE	
+Colddrink	CHAR(6)	
+
+
+• Retrieve cost and name of an icecream from menu by specifying its flavor number.
+• Update cost and maincourse column  from menu by specifying its MenuNo.
+
+
+CREATE TYPE ICECREAM_TYPE AS OBJECT(
+	flovorNo NUMBER(2)
+	Fname VARCHAR(10)
+	Cost NUMBER(3)
+	Hastopping CHAR(1)   
+	);
+/
+
+CREATE TYPE NAME_OF_ICECREAM AS TABLE OF ICECREAM_TYPE;
+/
+
+CREATE TABLE TECH_MENU (
+	MenuNo NUMBER(2) Primary key,
+               mainCourse VARCHAR2(15) Not Null,
+	DESERT NAME_OF_ICECREAM)
+NESTED TABLE DESERT STORE AS IC;
+
+
+INSERT INTO TECH_MENU VALUES(11,'CHICKEN',NAME_OF_ICECREAM (
+ICECREAM_TYPE(10,'NESTLE',20,'Y'),
+ICECREAM_TYPE(20,'KISSAN',30,'Y'),
+ICECREAM_TYPE(30,'JELLY',50,'N')
+));
+
+INSERT INTO TECH_MENU VALUES(12,'MOTHICHICKEN',NAME_OF_ICECREAM (
+ICECREAM_TYPE(40,'AAA',60,'Y'),
+ICECREAM_TYPE(50,'BBB',70,'Y'),
+ICECREAM_TYPE(60,'CCC',50,'N')
+));
+
+
+SELECT A.MENUNO, A.MAINCOURSE, T.FLOVORNO, T.FNAME,T.COST  FROM TECH_MENU A, TABLE (A.DESERT) T WHERE T.FLOVORNO=11;
+
+
+
+UPDATE TABLE( SELECT DESERT FROM TECH_MENU WHERE MENUNO=11)
+SET COST='100' AND SET MAINCOURSE='PANEER';
+==================================================================================
+COLLECTION
+
+Practice 1
+Create an object type named SKILLS_TYPE with the following subfields
+Skill_Id	NUMBER (2)
+Skill_Name	VARCHAR2(20)
+Skill_rating	NUMBER (2)
+
+Skill Rating can be between – 1 to 10.
+•Create a nested table type SKILL_TAB_TYPE of the above mentioned SKILLS_TYPE.
+
+CREATE TYPE SKILLS_TYPE IS OBJECT
+	(SKILL_ID NUMBER(2),
+	SKILL_NAME VARCHAR2(20),
+	SKILL_RATING NUMBER(2) );
+/
+
+CREATE TYPE SKILL_TAB_TYPE IS TABLE OF SKILLS_TYPE;
+/
+===================================================================================
+Practice 2
+A.Create an object type CUST_TAB with below attributes
+-Cust_id
+-Cust_Name
+-Plan_Name
+
+B. Create suitable collection type CUST_DETAILS of CUST_TAB type.
+One customer may have many plans .
+
+C. Create a table Cust_Tab_details as follows :
+
+Columname             Constraint  			Datatype
+Srno                         Primary Key            	 	 Number(10)
+Cust_Info                      	 	                CUST_DETAILS
+Cust_number	 	                                Number(10)
+		                             
+D.  Insert 2 rows in the above table 
+Atleast 2 CUST_TAB entries per srno.
+E. Write the select query to display Sr.no and Cust_info from cust_tab_detail table
+Note : Write SQL select command not the procedure.
+-----------------------------------------------------------------------------------------------------------
+CREATE  TYPE CUST_TAB IS OBJECT
+(Cust_id NUMBER,
+Cust_Name VARCHAR2(20),
+Plan_Name VARCHAR2(20));
+/
+
+CREATE TYPE CUST_DETAILS IS TABLE OF CUST_TAB;
+/
+
+CREATE  TABLE CUST_TAB_DETAILS
+(SRNO NUMBER(10) PRIMARY KEY,
+CUST_NUMBER NUMBER(10),
+CUST_INFO CUST_DETAILS)
+NESTED TABLE CUST_INFO STORE AS POINT_1;
+
+INSERT INTO CUST_TAB_DETAILS VALUES(1, 12, CUST_DETAILS(CUST_TAB(101,'ONKAR', 'SUMMER360'), CUST_TAB(111, 'RAHUL', 'GYM60')));
+INSERT INTO CUST_TAB VALUES(2, 24, CUST_DETAILS(CUST_TAB(11,'OMSHREE', 'WAKEUP'), CUST_TAB(141, 'YOGESH', 'FOOD')));
+
+SELECT M.SRNO, N.Cust_id, N.Cust_Name, N.Plan_Name FROM CUST_TAB_DETAILS M, TABLE(M.CUST_INFO) N;
+
+      SRNO    CUST_ID CUST_NAME            PLAN_NAME
+---------- ---------- -------------------- --------------------
+         1        101 ONKAR                SUMMER360
+         1        111 RAHUL                GYM60
+         2         11 OMSHREE              WAKEUP
+         2        141 YOGESH               FOOD
+===================================================================================
+Practice 3
+CREATE TYPE SKILLS_TYPE IS OBJECT
+	(SKILL_ID NUMBER(2),
+	SKILL_NAME VARCHAR2(20),
+	SKILL_RATING NUMBER(2) );
+/
+CREATE TYPE SKILL_TAB_TYPE IS TABLE OF SKILLS_TYPE;
+/
+
+CREATE TABLE EMPMAIN 
+(EMP_NO NUMBER (4) PRIMARY KEY,
+EMP_NAME CHAR(30),
+ALL_SKILLS SKILL_TAB_TYPE)
+NESTED TABLE ALL_SKILLS STORE AS POINT_2;
+
+INSERT INTO EMPMAIN VALUES(1001,'AMAN DEV', SKILL_TAB_TYPE(SKILLS_TYPE(11, 'DESIGN', 9),SKILLS_TYPE(21, 'CODE', 10),SKILLS_TYPE(31, 'TEST', 8)));
+INSERT INTO EMPMAIN VALUES(1014,'SONU', SKILL_TAB_TYPE(SKILLS_TYPE(15, 'ACTING', 5),SKILLS_TYPE(25, 'DANCE', 5),SKILLS_TYPE(16, 'SINGING', 10)));
+INSERT INTO EMPMAIN VALUES(1012,'DEV ANAND', SKILL_TAB_TYPE(SKILLS_TYPE(15, 'ACTING', 9),SKILLS_TYPE(25, 'DANCE', 6),SKILLS_TYPE(35, 'LOOK', 8)));
+INSERT INTO EMPMAIN VALUES(1112,'ANAND', SKILL_TAB_TYPE(SKILLS_TYPE(15, NULL,9),SKILLS_TYPE(25,NULL, 6),SKILLS_TYPE(75, 'LOOK', 5)));
+
+UPDATE TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMP_NAME='AMAN DEV') SET SKILL_RATING=30 WHERE SKILL_NAME='DESIGN';
+
+DELETE TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMPNO=112) WHERE SKILL_NAME IS NULL;
+
+CREATE PROCEDURE ADD_SKILLS(ID IN NUMBER, S_NO IN NUMBER, S_NAME IN VARCHAR2, S_RATE IN NUMBER )
+IS
+	NO_DATA EXCEPTION;
+	CNT NUMBER;
+BEGIN
+	SELECT COUNT(EMP_NO) INTO CNT FROM EMPMAIN WHERE EMP_NO=ID;
+ IF CNT>0 THEN
+	INSERT INTO TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMP_NO=ID) VALUES(SKILLS_TYPE(S_NO,S_NAME,S_RATE ));
+ ELSE
+	RAISE NO_DATA;
+  END IF;
+
+EXCEPTION
+	WHEN NO_DATA THEN
+	DBMS_OUTPUT.PUT_LINE('ERROR!!!!!!!!!!');
+END;
+===================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
