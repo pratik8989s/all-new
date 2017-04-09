@@ -1,0 +1,205 @@
+
+DAY 4
+
+Practice 1
+
+?	Create a procedure called USER_QUERY_EMP that accepts three parameters. Parameter p_myeno is of IN parameter mode which provides the employee_id value. The other two parameters p_myjob and p_mysal are of OUT mode. The procedure retrieves the salary and job_id of an employee with the provided employee_id and assigns those to the two OUT parameters respectively. The procedure should handle the error if the employee_id does not exist in the EMPLOYEES table by displaying an appropriate message. Use bind variables for the two OUT Parameters.
+?	Compile the code, invoke the procedure, and display the salary and job title for employee number 200. Do the same for employee number 120.
+
+
+CREATE OR REPLACE PROCEDURE USER_QUERY_EMP(P_ENO IN NUMBER, P_MYJOB OUT VARCHAR2,P_MYSAL OUT NUMBER)
+AS
+
+
+BEGIN
+SELECT JOB INTO P_MYJOB FROM EMP WHERE EMPNO=P_ENO;
+SELECT SAL INTO P_MYSAL FROM EMP WHERE EMPNO=P_ENO;
+
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+DBMS_OUTPUT.PUT_LINE('NO DATA FOUND');
+WHEN OTHERS THEN
+DBMS_OUTPUT.PUT_LINE('OTHERS,ENTER CORRECT VALUE');
+
+
+END;
+/
+
+
+
+VARIABLE JB VARCHAR2(20);
+VARIABLE SL NUMBER;
+DECLARE
+
+ID INT:=&X;
+BEGIN
+USER_QUERY_EMP(ID,:JB,:SL);
+
+END;
+/
+
+
+PRINT :JB
+PRINT :SL
+**************************************************************************************************************
+DAY 4
+Practice 2
+
+?	Create a function named USER_ANNUAL_COMP that has three parameters p_eno, p_sal and p_comm for passing on the values of an employee_id, the current salary and commission of the employee respectively. The function calculates and returns the annual compensation of the employee by using the following formula.
+     annual_compensation =  (p_sal+p_comm)*12
+      If the salary or commission value is NULL then zero should be substituted for it. 
+?	Give a call to USER_ANNUAL_COMP from a SELECT statement, against the EMPLOYEES table.
+
+
+
+
+CREATE OR REPLACE FUNCTION USER_ANNUAL_COMP(P_ENO INT, P_SAL INT, P_COMM INT)
+RETURN INT
+AS
+ANNUAL_COMPENSATION INT;
+BEGIN
+ANNUAL_COMPENSATION:=(P_SAL+P_COMM)*12;
+RETURN ANNUAL_COMPENSATION;
+END;
+/
+
+
+SELECT EMPNO,SAL,COMM,USER_ANNUAL_COMP(EMPNO,NVL(SAL,0),NVL(COMM,0)) ANNUAL_SAL FROM EMP ;
+
+
+********************************************
+
+DAY 4
+Practice 3
+
+?	Create a function named USER_VALID_DEPTNO that has a single parameter p_dno to accept a department number and returns a BOOLEAN value. The function returns TRUE if the department number exists in the DEPARTMENTS table else it returns FALSE.
+?	Create a procedure named SHOW_STRENGTH that accepts department number in a single parameter p_deptno from user. The procedure gives a call to USER_VALID_DEPTNO. If the function returns TRUE then the procedure finds out how many employees are there in the department from the EMPLOYEES table and displays the same on the screen. If the function returns FALSE then the procedure displays an appropriate error message.
+?	Give call to SHOW_STRENGTH by passing on department number 10. Do the same for department number 76
+
+
+
+CREATE OR REPLACE FUNCTION USER_VALID_DEPTNO(P_DNO INT)
+RETURN BOOLEAN
+AS
+ID INT;
+CNT INT;
+BEGIN
+
+SELECT DEPTNO INTO ID FROM DEPT WHERE DEPTNO=P_DNO;
+IF ID=P_DNO THEN
+RETURN TRUE;
+ELSE
+
+RETURN FALSE;
+END IF;
+
+EXCEPTION
+
+WHEN NO_DATA_FOUND THEN
+RETURN FALSE;
+WHEN OTHERS THEN
+RETURN FALSE;
+
+
+
+END;
+/
+
+
+
+
+CREATE OR REPLACE PROCEDURE SHOW_STRENGTH(P_DEPTNO INT)
+AS
+CNT INT;
+ANS BOOLEAN;
+BEGIN
+
+ANS:=USER_VALID_DEPTNO(P_DEPTNO);
+IF ANS=TRUE THEN
+
+SELECT COUNT(EMPNO) INTO CNT FROM EMP WHERE DEPTNO=P_DEPTNO;
+DBMS_OUTPUT.PUT_LINE('THE TOTAL COUNT OF EMP IS '||CNT);
+ELSIF ANS=FALSE THEN
+DBMS_OUTPUT.PUT_LINE('NOT A CORRECT NO. OR  EMPLOYEE NUMBER');
+END IF;
+END;
+/
+
+
+
+
+***********************************************************************************************************
+
+DAY4
+Practice 4
+
+?	Create a procedure named SHOW_RECORDS that accepts a single parameter p_join_date. The procedure determines and displays on the screen, the details of the employees who have joined after p_join_date, in the following format. 
+Employees Joined after ddth, Month yyyy
+
+EMPLOYEE FIRST NAME		JOB		SALARY	DEPARTMENT 
+_____________________________________________________________
+
+XXXXXXXX			XXXXX		99,999		  99
+XXXXXXXX			XXXXX		99,999		  99
+
+
+
+The procedure should display appropriate message if there is no employee who joined after p_join_date .
+?	Give a call to SHOW_RECORDS from an anonymous PL/SQL block 
+
+
+
+select * from emp where (1981<extract(year from hiredate)) ;
+
+
+select * from emp where (1981<extract(year from hiredate)) or (1981=(extract(year from hiredate))  and 3<extract(month from hiredate)  ) ;
+
+select * from emp where (1981<extract(year from hiredate)) 
+
+or (1981=(extract(year from hiredate))  and 3<extract(month from hiredate)  )
+
+
+or (1981=(extract(year from hiredate))  and 3=extract(month from hiredate)  and 12<extract(day from hiredate) ) ;
+**************************************************************************************************************                          
+SELECT TO_CHAR(TO_DATE(SYSDATE,'DD-MON-YY'),'DDTH, Month YYYY') FROM DUAL;
+
+**************************************************************************************************************
+
+DAY 4
+Practice 6
+
+
+Create a stored procedure Gen_Bill which will take custid, Bill_amt and Bill_date as argument to insert a record in the Bill_Details table on the basis of the following rules:
+a)	A unique Bill_id should be generated and inserted into table
+b)	Check referential integrity for Custid
+c)	Bill_amt should not exceed Rs.12000
+d)	Bill date should be today?s date.                					      
+On successful insertion of the record display a success message. Handle all possible exceptions if any of the rules is violated	
+
+
+
+CREATE TABLE BILL(BID NUMBER,CUSTID NUMBER,BILLAMT NUMBER,BILLDATE DATE);
+
+INSERT INTO BILL (BILLID,CID,BIIL_AMT) VALUES (1,1236,11000);
+
+CREATE OR REPLACE PROCEDURE GEN_BILL (CID NUMBER,BILL_AMT NUMBER,BILL_DATE DATE DEFAULT SYSDATE)
+AS
+TEMP INT;
+TEMP1 INT;
+BEGIN
+
+SELECT MAX(BID) INTO TEMP FROM BILL;
+TEMP1:=TEMP+1;
+
+IF (BILL_AMT<12000) THEN
+
+INSERT INTO BILL VALUES (TEMP1,CID,BILL_AMT,BILL_DATE);
+DBMS_OUTPUT.PUT_LINE('ROW INSERTED');
+ELSE
+DBMS_OUTPUT.PUT_LINE('NOTHING');
+END IF;
+
+END;
+/
+
+**********************************************************

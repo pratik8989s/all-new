@@ -1,0 +1,121 @@
+day 3 assignment
+Exceptions
+
+Practice 1
+
+?	Create a table named MESSAGES (err_message VARCHAR2(250))
+?	Write a PL/SQL block that accepts a salary value from a user and displays name of the employee having the salary value, on the screen. 
+?	 If the salary entered returns more than one row, handle the exception with an appropriate Exception handler and insert into the MESSAGES table the message
+ ? More than one employee with salary of <input salary>?
+?	 If the salary entered does not return any  rows, handle the exception with an appropriate Exception handler and insert into the MESSAGES table the message
+ ? No employee with salary of < input salary>?
+?	 If the salary entered returns only one row, insert into the MESSAGES table the employees name 
+?	 Handle any other exception with an appropriate Exception handler and insert into the MESSAGES table the message ? Some other error occurred?
+
+
+
+ CREATE TABLE MESSAGES (err_message VARCHAR2(250));
+
+
+DECLARE
+
+S INT;
+NAME VARCHAR2(20);
+COIN INT;
+MORE_ROWS EXCEPTION;
+NO_EMP EXCEPTION;
+
+BEGIN
+S:=&S;
+
+
+SELECT ENAME INTO NAME FROM EMP WHERE S=SAL;
+SELECT COUNT(ROWNUM) INTO COIN FROM EMP WHERE S=SAL;
+IF COIN>1 THEN 
+RAISE MORE_ROWS;
+INSERT INTO MESSAGES VALUES('NAME IS '||NAME);
+
+ELSIF COIN=1 THEN
+DBMS_OUTPUT.PUT_LINE('ROWNUM IS ONE');
+INSERT INTO MESSAGES VALUES('EMPLOYEE NAME TO BE ENTERED'||NAME);
+
+ELSE
+RAISE NO_EMP;
+INSERT INTO MESSAGES VALUES('No employee with salary of '|| S);
+END IF;
+			EXCEPTION 
+
+			WHEN MORE_ROWS THEN
+		DBMS_OUTPUT.PUT_LINE(' More than one employee with salary of '||S);
+			WHEN NO_EMP THEN
+		DBMS_OUTPUT.PUT_LINE('No employee with salary of '|| S);
+			WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('SOME OTHER ERRORS OCCURRED');
+
+END;
+/
+
+=============================================================================
+
+day 3
+Practice 4
+?	Write a PL/SQL block that accepts the employee_id of two employees as two user inputs empno1 and empno2. If empno1 exists in the ?employees? table, then the block increases the salary of the employee by 10%. If empno2 exists in the ?employees? table then the block increases his salary by 20%. The block should raise and handle the errors if empno1 or empno2 or both do not exist, by displaying the appropriate messages. Note that if empno1 does not exist but empno2 exists then the salary of empno2 must be increased. Also when both empno1 and empno2 do not exist then the error must be handled by the block.
+ 
+CREATE OR REPLACE PROCEDURE EEE (EMPNO1 INT,EMPNO2 INT)
+AS
+
+ONE INT;
+TWO INT;
+
+BEGIN
+
+SELECT COUNT(EMPNO) INTO ONE FROM EMP WHERE EMPNO=EMPNO1;
+SELECT COUNT(EMPNO) INTO TWO FROM EMP WHERE EMPNO=EMPNO2;
+
+IF ((ONE=1) AND (TWO=1)) THEN
+
+UPDATE DUMM
+SET SAL=SAL*1.10
+WHERE EMPNO=EMPNO1;
+
+UPDATE DUMM
+SET SAL=SAL*1.20
+WHERE EMPNO=EMPNO2;
+
+END IF;
+
+
+IF (ONE=1) AND (TWO!=1) THEN
+
+UPDATE DUMM
+SET SAL=SAL*1.10
+WHERE EMPNO=EMPNO1;
+
+END IF;
+
+IF  (ONE!=1) AND (TWO=1) THEN
+
+UPDATE DUMM
+SET SAL=SAL*1.20
+WHERE EMPNO=EMPNO2;
+
+
+END IF;
+
+
+IF (ONE!=1) AND (TWO!=1) THEN
+
+DBMS_OUTPUT.PUT_LINE('BOTH NOT EQUAL');
+
+END IF;
+
+
+END;
+/
+
+
+EXEC EEE(7876,7788);
+SELECT * FROM DUMM;
+
+
+===============================================================================

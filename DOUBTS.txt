@@ -1,0 +1,108 @@
+CREATE OR REPLACE PROCEDURE RETURN1(ID IN INT,JOB OUT VARCHAR2,SAL OUT INT)
+  2  AS
+  3     BEGIN
+  4             SELECT JOB INTO JOB FROM EMP WHERE EMPNO=ID;
+  5             SELECT SAL INTO SAL FROM EMP WHERE EMPNO=ID;
+  6     END;
+  7  /
+
+Procedure created.
+
+SQL> DECLARE
+  2  A VARCHAR2(20);
+  3  B INT;
+  4  BEGIN
+  5     RETURN1(7900,A,B);
+  6     DBMS_OUTPUT.PUT_LINE('JOB='||A);
+  7     DBMS_OUTPUT.PUT_LINE('SAL='||B);
+  8  END;
+  9  /
+
+=====================================
+HOW IT WORKS(UP)
+
+
+
+=======================
+CURSORS
+
+CREATE OR REPLACE PROCEDURE TR14(JD VARCHAR2)
+  2  AS
+  3  BEGIN
+  4     UPDATE EMP SET SAL=SAL+100 WHERE JOB=JD;
+  5     DBMS_OUTPUT.PUT_LINE('NO='||SQL%ROWCOUNT);
+  6  END;
+  7  /
+
+===========================================
+
+COPY N PASTE IF THIS WORKS ,FETCH AND EXIT WHEN NOTFOUND IS 
+TAKEN ABOVE DBMS
+
+
+
+ CREATE OR REPLACE PROCEDURE TR141(DN INT)
+    AS
+       CURSOR CR_EMP IS SELECT ROWNUM,A.DEPTNO,DNAME,LOC,ENAME,SAL,JOB,COMM FROM EMP A JOIN DEPT B ON A.DEPTNO=B.DEPTNO WHERE A.DEPTNO=DN;
+       INFO CR_EMP%ROWTYPE;
+       BEGIN
+               OPEN CR_EMP;
+		FETCH CR_EMP INTO INFO;
+               DBMS_OUTPUT.PUT_LINE('DEPTNO'||':'||INFO.DEPTNO);
+              DBMS_OUTPUT.PUT_LINE('DNAME'||':'||INFO.DNAME);
+              DBMS_OUTPUT.PUT_LINE('LOC'||':'||INFO.LOC);
+              DBMS_OUTPUT.PUT_LINE('=============================================================');
+              DBMS_OUTPUT.PUT_LINE('SR. NO.'||CHR(9)||'ENAME'||CHR(9)||'SAL'||CHR(9)||'JOB'||CHR(9)||CHR(9)||'COMM');
+               DBMS_OUTPUT.PUT_LINE('============================================================');
+              LOOP
+              		FETCH CR_EMP INTO INFO;
+			EXIT WHEN CR_EMP%NOTFOUND;
+                       DBMS_OUTPUT.PUT_LINE(INFO.ROWNUM||CHR(9)||INFO.ENAME||CHR(9)||INFO.SAL||CHR(9)||INFO.JOB||CHR(9)||INFO.COMM);
+              		
+		END LOOP;
+              CLOSE CR_EMP;
+   END;
+   /
+
+
+===================================================
+TRY WITH ONLY ONE CURSOR WALA
+
+==============================================
+
+
+DOES AFTER EXCEPTION RAISED PROGRAM QUITS?
+
+===========================
+
+CAN WE PLACE  PREDEFINED EXCEPTION AFTER AN 'IF' STATEMENT? 
+LIKE RAISE NO_DATA_FOUND
+AND DOES THE PROGRAM END THERE ITSELF?
+
+==========================================
+
+
+PRACTICE PAPER 2 AMBIGIOUS QUESTION WITH SR EMPID ..
+					.........
+					.........
+					.........
+					.........
+WHAT DO THEY EXPECT?
+===============================================
+ERROR HANDLING EXCEPTION HANDLING, IF LEFT OK? OR USED ONLY USER DEFINED OK?
+=============================================
+
+PRACTICE PAPER 2 FIFTH SUM TABLE
+==============================================
+
+
+
+
+
+
+
+
+
+
+
+

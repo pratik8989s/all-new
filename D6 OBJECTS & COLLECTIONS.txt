@@ -1,0 +1,97 @@
+DAY 6
+Objects 
+
+Practice 1
+
+?	Create a user defined data type named ?MARKS_TYPE? having the following subfields
+
+Column	Data type and size
+Subject	VARCHAR 2 (25)
+midTermMarks	NUMBER (3)
+annualMarks	NUMBER(3)
+
+
+?	Create an object table with name ?MYMARKS? having a single column of type MARKS_TYPE.
+?	Insert any 3 records in the table with relevant data
+?	Fire an appropriate SELECT command to get midTermMarks and annualMarks for all records for the given subject
+
+
+CREATE TYPE MARKS_TYPE AS OBJECT
+(
+SUBJECT VARCHAR2(25),
+MIDTERM_MARKS NUMBER(3),
+ANNUAL_MARKS NUMBER(3)
+);
+/
+
+
+
+
+CREATE TABLE MYMARKS (DATA MARKS_TYPE);
+
+INSERT INTO MYMARKS VALUES(MARKS_TYPE('MATHS',67,99));
+INSERT INTO MYMARKS VALUES(MARKS_TYPE('PHY',55,69));
+INSERT INTO MYMARKS VALUES(MARKS_TYPE('ALG',65,89));
+
+SELECT X.DATA.SUBJECT,X.DATA.MIDTERM_MARKS,X.DATA.ANNUAL_MARKS FROM MYMARKS X;
+
+
+****************************************************************************************************************************
+day 6 
+objects
+
+Practice 3
+
+?	Create user defined data type named ?ICECREAM_TYPE? with the following data members
+
+Column	Data type and size
+flovorNo	NUMBER(2)
+Fname	VARCHAR(10)
+Cost	NUMBER(3)
+Hastopping	CHAR(1)   
+Can be Y or N
+
+?	Create table named ?menu? with the following design and insert five records into it.
+
+Column	Data type and size	Constraint
+MenuNo	NUMBER(2)	Primary key
+mainCourse	VARCHAR2(15)	Not Null
+Desert	ICECREAM_TYPE	
+Colddrink	CHAR(6)	
+
+
+?	Retrieve cost and name of an icecream from menu by specifying its flavor number.
+?	Update cost and maincourse column  from menu by specifying its MenuNo.
+
+
+
+
+
+CREATE TYPE ICECREAM_TYPO AS OBJECT(
+FLOVORNO NUMBER(2),
+FNAME VARCHAR(10),
+COST NUMBER(3),
+HASTOPPING CHAR(1)   
+);
+/
+
+CREATE TABLE MENU(MENUNO NUMBER(2) PRIMARY KEY,
+MAINCOURSE VARCHAR2(15) NOT NULL,
+DESERT ICECREAM_TYPO,	
+COLDDRINK CHAR(6));
+/
+
+
+INSERT INTO MENU VALUES(1,'XYZ',ICECREAM_TYPO(1,'VANILLA',100,'Y'),'COKE');
+
+INSERT INTO MENU VALUES(2,'ABC',ICECREAM_TYPO(2,'BS',200,'N'),'MILK');
+
+UPDATE MENU C
+SET C.DESERT.COST=900,
+C.MAINCOURSE='NEW'
+WHERE MENUNO=2;
+
+SELECT * FROM MENU;
+SELECT C.MENUNO,C.MAINCOURSE,C.DESERT.COST FROM MENU C WHERE C.MENUNO=2;
+
+********************************************************

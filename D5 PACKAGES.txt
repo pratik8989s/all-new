@@ -1,0 +1,78 @@
+DAY 5
+PACKAGES
+
+Practice 1
+
+?	Create a package named MANAGE_EMP_PACK that has two public procedures, two package level variables and a private function. The public procedure HIRE_EMP adds an employee record in EMPLOYEES table and the public procedure FIRE_EMP deletes an employee record from the EMPLOYEES table. The two variables v_insert_cnt and v_delete_cnt are used in the package, for keeping record of the numbers of times insert / delete has been executed. 
+Create a private function VALIDATE_EMP in the package to validate employee number. This function can be called from HIRE_EMP and FIRE_EMP.
+?	The function VALIDATE_EMP accepts an employee number in a parameter p_eno and returns TRUE if the value of employee number exists in the EMPLOYEES table else it returns FALSE.
+?	The procedure HIRE_EMP takes all the column values of the EMPLOYEES table as parameters. It gives a call to VALIDATE_EMP by passing on the value of employee number and if the function returns TRUE then it displays message ?Employee number already in use?. If the function returns FALSE then it inserts a new record in the EMPLOYEES table and displays a message ?One employee added?. It also increments the value of v_insert_cnt by 1.
+?	The procedure FIRE_EMP accepts an employee number as a parameter and gives a call to VALIDATE_EMP by passing on the value of employee number. If the function returns TRUE then it deletes the corresponding record from the EMPLOYEES table, displays message ?One employee deleted? and increments the value of v_delete_cnt by 1. If the function returns FALSE then it displays message ?Wrong employee number?.
+?	Check working of the methods in MANAGE_EMP_PACK by giving calls to the public procedures and by displaying value of the appropriate package variable, through an anonymous block 
+
+
+
+CREATE OR REPLACE PACKAGE MANAGE_EMP_PACK
+IS
+PROCEDURE HIRE_EMP(P_ENO NUMBER, ENAM VARCHAR2,JB VARCHAR2,MGRR NUMBER,SALY NUMBER,COM NUMBER,DEPTNUM NUMBER,HIRE_DATE DATE DEFAULT SYSDATE);
+PROCEDURE FIRE_EMP(P_ENO NUMBER);
+V_INSERT_CNT INT DEFAULT 0;
+V_DELETE_CNT INT DEFAULT 0;
+END;
+/
+
+
+CREATE OR REPLACE PACKAGE BODY MANAGE_EMP_PACK
+IS
+
+
+
+
+FUNCTION VALIDATE_EMP(P_ENO NUMBER) RETURN BOOLEAN
+IS 
+E1 NUMBER;
+BEGIN
+SELECT COUNT(EMPNO) INTO E1 FROM DUMM WHERE EMPNO=P_ENO;
+IF E1=1 THEN
+RETURN TRUE;
+ELSE 
+RETURN FALSE;
+END IF;
+END VALIDATE_EMP;
+
+PROCEDURE HIRE_EMP(P_ENO NUMBER, ENAM VARCHAR2,JB VARCHAR2,MGRR NUMBER,SALY NUMBER,COM NUMBER,DEPTNUM NUMBER,HIRE_DATE DATE)
+IS
+ANS BOOLEAN;
+BEGIN
+ANS:=VALIDATE_EMP(P_ENO);
+IF ANS THEN
+DBMS_OUTPUT.PUT_LINE('Employee number already in use');
+ELSE
+DBMS_OUTPUT.PUT_LINE('THERES NO EMPLOYEE SO WE WILLL ADD EMPLOYEE');
+INSERT INTO DUMM (EMPNO,ENAME,JOB,MGR,SAL,COMM,DEPTNO,HIREDATE) VALUES(P_ENO, ENAM,JB,MGRR,SALY,COM,DEPTNUM,HIRE_DATE);
+DBMS_OUTPUT.PUT_LINE('One employee added');
+END IF;
+END HIRE_EMP;
+
+PROCEDURE FIRE_EMP(P_ENO NUMBER) 
+IS
+ANS BOOLEAN;
+BEGIN
+ANS:=VALIDATE_EMP(P_ENO);
+IF ANS THEN
+DELETE FROM DUMM WHERE EMPNO=P_ENO;
+DBMS_OUTPUT.PUT_LINE('One employee deleted');
+ELSE
+DBMS_OUTPUT.PUT_LINE('Wrong employee number');
+END IF;
+END FIRE_EMP;
+END MANAGE_EMP_PACK;
+/
+
+
+*******************************
+
+EXEC MANAGE_EMP_PACK.HIRE_EMP(7850,'ZACK','ANALYST',7876,900,0,10);
+
+
+*********************************************************************************************************
