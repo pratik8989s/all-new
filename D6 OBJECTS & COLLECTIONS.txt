@@ -3,7 +3,7 @@ Objects
 
 Practice 1
 
-?	Create a user defined data type named ?MARKS_TYPE? having the following subfields
+•	Create a user defined data type named “MARKS_TYPE” having the following subfields
 
 Column	Data type and size
 Subject	VARCHAR 2 (25)
@@ -11,9 +11,9 @@ midTermMarks	NUMBER (3)
 annualMarks	NUMBER(3)
 
 
-?	Create an object table with name ?MYMARKS? having a single column of type MARKS_TYPE.
-?	Insert any 3 records in the table with relevant data
-?	Fire an appropriate SELECT command to get midTermMarks and annualMarks for all records for the given subject
+•	Create an object table with name “MYMARKS” having a single column of type MARKS_TYPE.
+•	Insert any 3 records in the table with relevant data
+•	Fire an appropriate SELECT command to get midTermMarks and annualMarks for all records for the given subject
 
 
 CREATE TYPE MARKS_TYPE AS OBJECT
@@ -37,12 +37,18 @@ SELECT X.DATA.SUBJECT,X.DATA.MIDTERM_MARKS,X.DATA.ANNUAL_MARKS FROM MYMARKS X;
 
 
 ****************************************************************************************************************************
+
+
+
+
+
+
 day 6 
 objects
 
 Practice 3
 
-?	Create user defined data type named ?ICECREAM_TYPE? with the following data members
+•	Create user defined data type named “ICECREAM_TYPE” with the following data members
 
 Column	Data type and size
 flovorNo	NUMBER(2)
@@ -51,7 +57,7 @@ Cost	NUMBER(3)
 Hastopping	CHAR(1)   
 Can be Y or N
 
-?	Create table named ?menu? with the following design and insert five records into it.
+•	Create table named “menu” with the following design and insert five records into it.
 
 Column	Data type and size	Constraint
 MenuNo	NUMBER(2)	Primary key
@@ -60,8 +66,8 @@ Desert	ICECREAM_TYPE
 Colddrink	CHAR(6)	
 
 
-?	Retrieve cost and name of an icecream from menu by specifying its flavor number.
-?	Update cost and maincourse column  from menu by specifying its MenuNo.
+•	Retrieve cost and name of an icecream from menu by specifying its flavor number.
+•	Update cost and maincourse column  from menu by specifying its MenuNo.
 
 
 
@@ -95,3 +101,236 @@ SELECT * FROM MENU;
 SELECT C.MENUNO,C.MAINCOURSE,C.DESERT.COST FROM MENU C WHERE C.MENUNO=2;
 
 ********************************************************
+
+
+===========================================================================================================================
+
+
+COLLECTIONS
+Practice 1
+
+Create an object type named SKILLS_TYPE with the following subfields
+
+Skill_Id	NUMBER (2)
+Skill_Name	VARCHAR2(20)
+Skill_rating	NUMBER (2)
+ 
+
+Skill Rating can be between – 1 to 10.
+
+•	Create a nested table type SKILL_TAB_TYPE of the above mentioned SKILLS_TYPE.
+
+
+CREATE OR REPLACE TYPE SKILLS_TYPE AS OBJECT(
+SKILL_ID NUMBER(2),
+SKILL_NAME VARCHAR2(20),
+SKILL_RATING NUMBER(2)
+);
+/
+
+CREATE TYPE SKILL_TAB_TYPE AS TABLE OF SKILLS_TYPE;
+/
+
+
+**************************************************************************************************************
+
+Practice 2
+
+A.	Create an object type CUST_TAB with below attributes
+-	Cust_id
+-	Cust_Name
+-	Plan_Name
+B.	Create suitable collection type CUST_DETAILS of CUST_TAB type.
+One customer may have many plans .
+
+C.	Create a table Cust_Tab_details as follows :
+
+Columname                            	Constraint  	Datatype
+Srno                          	Primary Key            	  Number(10)
+Cust_Info                      	 	             CUST_DETAILS
+Cust_number	 	                                Number(10)
+		                             
+D.	 Insert 2 rows in the above table 
+Atleast 2 CUST_TAB entries per srno.
+E.	Write the select query to display Sr.no and Cust_info from cust_tab_detail table
+Note : Write SQL select command not the procedure.
+
+
+
+CREATE OR REPLACE TYPE CUST_TAB AS OBJECT(
+CUST_ID NUMBER,
+CUST_NAME VARCHAR2(20),
+PLAN_NAME VARCHAR2(20)
+);
+
+CREATE OR REPLACE TYPE CUST_DETAILS AS TABLE OF CUST_TAB;
+/
+
+
+CREATE TABLE CUST_TAB_DETAILS(
+SRNO NUMBER(10) PRIMARY KEY,
+CUST_NUMBER NUMBER(10),
+CUST_INFO CUST_DETAILS
+)
+NESTED TABLE CUST_INFO STORE AS JAMS1;
+
+INSERT INTO CUST_TAB_DETAILS VALUES(1,789,CUST_DETAILS(CUST_TAB(21,'JERRY','PLANNAME'),CUST_TAB(45,'SPRINGER','PLNNAME')));
+
+
+INSERT INTO CUST_TAB_DETAILS VALUES(2,790,CUST_DETAILS(CUST_TAB(85,'JDFV','SDV'),CUST_TAB(35,'SDFB','PDFB')));
+
+
+INSERT INTO CUST_TAB_DETAILS VALUES(3,791,CUST_DETAILS(CUST_TAB(12,'SDF','FSD'),CUST_TAB(45,'WER','FGF')));
+
+
+SELECT A.SRNO, A.CUST_NUMBER,T.CUST_ID,T.CUST_NAME,T.PLAN_NAME FROM CUST_TAB_DETAILS A, TABLE(A.CUST_INFO) T;
+
+
+
+*************************************************************************************************************************************************************************
+
+
+Practice 3
+
+
+•	Create a nested table type SKILL_TAB_TYPE of the above mentioned SKILL_TYPE type.
+
+•	Create a table EMPMAIN with the following structure:
+
+Emp_No	NUMBER (4)	PRIMARY KEY
+Emp_Name	CHAR (30)	
+All_Skills	SKILL_TAB_TYPE	
+
+     Give appropriate names for the corresponding storage tables
+•	Insert the following record in the table EMPMAIN. 
+Example:
+Emp_No	Emp_Name	All_Skills
+1001	Aman Dev	101	Design	9
+201	Code	10
+301	Test	8
+
+
+•	Insert 2-3 more records in EMPMAIN.
+•	Update the Skill Rating for Aman for Skill 301 to 9. (Use TABLE CLAUSE).
+•	Delete all the records where Skill Name is Null.
+•	Create a procedure named ADD_SKILL that will accept Emp_No  and skill details as parameters and add the skill details to the corresponding record from the EMPMAIN table. The procedure should handle all the probable errors by displaying the appropriate error messages on the screen.
+•	Give a call to ADD_SKILL from an anonymous PL/SQL block
+
+
+
+
+CREATE OR REPLACE TYPE SKILLS_TYPE1 AS OBJECT(
+SKILL_ID NUMBER(2),
+SKILL_NAME VARCHAR2(20),
+SKILL_RATING NUMBER(2)
+);
+/
+
+CREATE TYPE SKILL_TAB_TYPE1 AS TABLE OF SKILLS_TYPE1;
+/
+
+CREATE TABLE EMPMAIN(
+EMPNO NUMBER(4),
+EMP_NAME VARCHAR2(30),
+ALL_SKILLS SKILL_TAB_TYPE1)
+NESTED TABLE ALL_SKILLS STORE AS JAMS3;
+
+
+
+
+
+
+INSERT INTO EMPMAIN VALUES(1,'AMAN DEV',SKILL_TAB_TYPE1(SKILLS_TYPE1(11,'DESIGN',9),SKILLS_TYPE1(21,'CODE',10),SKILLS_TYPE1(31,'TEST',8)));
+INSERT INTO EMPMAIN VALUES(2,'RASHMI',SKILL_TAB_TYPE1(SKILLS_TYPE1(45,'DESIGN',9),SKILLS_TYPE1(61,'CODE',10),SKILLS_TYPE1(31,'TEST',8)));
+INSERT INTO EMPMAIN VALUES(3,'TAARIF',SKILL_TAB_TYPE1(SKILLS_TYPE1(41,'DESIGN',9),SKILLS_TYPE1(81,'CODE',10),SKILLS_TYPE1(31,'TEST',8)));
+INSERT INTO EMPMAIN VALUES(4,'VISHAL',SKILL_TAB_TYPE1(SKILLS_TYPE1(81,'DESIGN',9),SKILLS_TYPE1(41,'CODE',10),SKILLS_TYPE1(31,'TEST',8)));
+INSERT INTO EMPMAIN VALUES(5,'BUDEG',SKILL_TAB_TYPE1(SKILLS_TYPE1(81,NULL,9),SKILLS_TYPE1(41,'CODE',10),SKILLS_TYPE1(31,'TEST',8)));
+
+
+SELECT A.EMPNO,A.EMP_NAME,T.SKILL_ID,T.SKILL_NAME,T.SKILL_RATING FROM EMPMAIN A,TABLE(ALL_SKILLS) T;
+
+
+UPDATE TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMP_NAME='AMAN DEV')
+SET SKILL_RATING=9
+WHERE SKILL_ID=31;
+
+
+
+DELETE FROM TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMP_NAME='BUDTEW') WHERE SKILL_NAME IS NULL;
+
+
+
+CREATE OR REPLACE PROCEDURE ADD_SKILL(ENO NUMBER,S_ID NUMBER,S_NAME VARCHAR2,S_RATING NUMBER)
+AS
+BEGIN
+INSERT INTO TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMPNO=ENO) VALUES (SKILLS_TYPE1(S_ID,S_NAME,S_RATING));
+END;
+
+EXEC ADD_SKILL(5,54,'DEEEE',3);
+
+**************************************************************************************************************
+**************************************************************************************************************
+
+
+Practice 4
+
+Create an object type VEHICLE_TYPE to record the vehicle details owned by an employee.  VEHICLE_TYPE  has the following design :
+
+
+Vehicle_No	VARCHAR2(12)
+Vehicle_Type	CHAR(1)  
+(T for two wheeler and F for four wheeler)
+Monthly_Expense	NUMBER(7)
+
+
+•	Create a varray named VEHICLE_ARR of VEHICLE_TYPE that can store max of 3 vehicle details for each employee.
+
+•	Create a table EMP_VARRAY with the following design :
+
+Emp_No	NUMBER (4)	PRIMARY KEY
+Emp_Name	VARCHAR2 (30)	
+vehicleList	VEHICLE_ARR	
+
+•	Add two relevant records in the table with only one vehicleList member for each emp_no.
+
+•	Write a procedure named ADD_VEHICLE_DETAILS that accepts Emp_no and vehicle details and adds the vehicle details for the corresponding Emp_no in the EMP_VARRAY table. The procedure should handle all the probable errors by displaying the appropriate error messages on the screen.
+
+•	Give a call to ADD_VEHICLE_DETAILS from an anonymous PL/SQL block
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
