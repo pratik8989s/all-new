@@ -1,0 +1,220 @@
+**********************************************Cursors ************
+
+
+Practice 1
+	
+•	Write a PL/SQL block that takes a department number from a user and increases the salary of all the employees belonging to the department by 10%. 
+	The block should display on the screen how many records are updated.
+ANS:
+create table empdummy as select * from emp;
+
+create or replace procedure inc(depno int)
+as
+cursor cr_sal is select sal from emp where deptno=depno;
+salinfo cr_sal%rowtype;
+begin
+open cr_sal;
+	loop
+		fetch cr_sal into salinfo;
+		exit when cr_sal%notfound;
+
+		update empdummy
+		set sal=(sal*110)/100
+		where deptno=depno;
+	end loop;
+exception
+when no_data_found then
+dbms_output.put_line('No employee present in taht dept');
+
+close cr_sal;
+end;
+/
+
+declare
+dno int;
+begin
+dno:=&did;
+inc(dno);
+dbms_output.put_line('No of rows updated are= '||sql%rowcount);
+end;
+/
+Enter value for did: 20
+old   4: dno:=&did;
+new   4: dno:=20;
+No of rows updated are= 5
+
+----------------------------------------------------------------------------------------------------------
+Practice 2
+
+•	Write a PL/SQL block to display the employee first name, salary and JOB_TITLE for the first five employees recorded in the “employees” table by making use of :
+•	Simple for loop with “EXIT WHEN” condition
+•	The “WHILE” condition
+•	Cursor FOR LOOP 
+ANS:
+1)
+declare
+begin
+for record in (select rownum,ename, sal, job from emp)
+loop
+dbms_output.put_line(record.ename||CHR(9)||record.sal||CHR(9)||record.job);
+exit when record.rownum=5;
+end loop;
+end;
+
+
+2)
+declare 
+x int;
+fname varchar2(20);
+salary int;
+job_title varchar2(20);
+rowno int;
+begin
+x :=1;
+     while x<=5
+    loop
+		select ename,sal,job,rownum into fname,salary,job_title,rowno from emp where rownum=x;
+		dbms_output.put_line(fname||CHR(9)||salary||CHR(9)||job_title);
+		x:=x+1;
+end loop;
+
+end;
+/
+.....half executed
+
+3)
+declare
+cursor cr1 is select ename,sal,job,rownum from emp where rownum<=5 order by rownum;
+begin
+
+for I in cr1
+
+loop
+dbms_output.put_line(I.ename||CHR(9)||I.sal||CHR(9)||I.job);
+end loop;
+end;
+/
+
+
+----------------------------------------------------------------------------------------------------------------------------
+Practice 3
+
+•	Write a PL/SQL block that displays names and salaries of all “Programmer” recorded in the employees table by making use of a cursor.
+
+
+ANS:
+ create or replace procedure pinfo
+as
+cursor cr_prgm is select ename,sal from emp where job='PROGRAMMER';
+pinfo cr_prgm%rowtype;
+
+begin
+
+open cr_prgm;
+
+loop
+   fetch cr_prgm into pinfo;
+   exit when cr_prgm%notfound;
+  
+dbms_output.put_line('Ename is='||pinfo.ename||'Salary is='||pinfo.sal);
+
+end loop;
+exception
+when no_data_found then
+dbms_output.put_line('No programmer present in emp table');
+close cr_prgm;
+end;
+/
+
+exec pinfo;
+
+
+-------------------------------------------------------------------------------------------------------------------
+Practice 4
+
+•	Write a PL/SQL block that accepts a value of a job_id from user and displays the full names, department numbers and salaries of the employees from the “employees” table having that job. The block makes use of a parameterized cursor. The user input is passed on to the cursor as a parameter. 
+
+
+
+
+
+
+declare
+cursor cr_de(jid varchar2) is select ename,deptno,sal from emp where job=jid;
+crinfo cr_de%rowtype;
+job_id varchar2(20);
+begin
+job_id:='&jid';
+
+open cr_de(job_id);
+	fetch cr_de into crinfo;
+      	dbms_output.put_line(crinfo.ename||CHR(9)||crinfo.deptno||CHR(9)||crinfo.sal);
+	
+close cr_de;
+end;
+/
+ -------------------------------------------------------------------------------------------------------------------------  	
+Practice 5
+
+•	Write a PL/SQL block that updates the salaries of the employees as per the following rules. 
+•	If the job is SH_CLERKand department_id is 10 then increase the salary by 20%
+•	If the job is ST_MAN and department_id is 20 then increase the salary by 5%
+•	For all the other cases increase the salary by 10%
+The block makes use of a cursor for performing the updates and ensures that the appropriate locks are taken on the data retrieved by the cursor, as the data is to be updated. 
+			
+Practice 6
+
+•	Write a PL/SQL block that retrieves information from the “department” and “employees” table and displays it in the following format
+
+Department ID :10		Department Name : XXXX
+________________________________________________________
+EMPLOYEE NUMBER 	 EMPLOYEE FULL NAME	SALARY  	JOB
+
+XXXXXX		XXXXXX			XXXX		XXXXX
+XXXXXX		XXXXXX			XXXX		XXXXX
+.........
+
+Department ID : 20		Department Name : XXXX
+________________________________________________________
+EMPLOYEE NUMBER 	 EMPLOYEE FULL NAME	SALARY  	JOB
+
+XXXXXX		XXXXXX			XXXX		XXXXX
+XXXXXX		XXXXXX			XXXX		XXXXX
+.........
+
+    ......and so on for all the departments recorded in the “department” table.
+(Hint : Make use of two cursors –one to retrieve department details and another a parameterized cursor to retrieve employee details. In a loop, use a cursor to retrieve the department and the department name from the DEPARTMENT table, pass the department_id second  cursor to retrieve the required column values from the “EMPLOYEES” table, for those employees who work in that department.)
+								
+create or replace procedure abc
+ as
+    cursor cr_dept is select * from dept;
+    cursor cr_dep(dno number) is select * from emp where deptno=dno order by deptno;
+
+info cr_dept%rowtype;
+info1 cr_dep%rowtype;
+
+
+begin
+
+	open cr_dept;
+	loop
+		fetch cr_dept into info;
+ 		exit when cr_dept%notfound;
+
+			open cr_dep(info.deptno);
+				loop
+					fetch cr_dep into info1;
+ 					exit when cr_dep%notfound;
+					dbms_output.put_line(info1.EMPNO ||'	'||info1.ename||'	'||info1.JOB||'		'||info1.MGR||'		'||info1.HIREDATE||'  '||info1.SAL||'  '||info1.COMM||'  '||info1.DEPTNO);             
+				end loop;
+			close cr_dep;
+
+		dbms_output.put_line(info.deptno ||'  '||info.dname||'  '||info.loc);
+	end loop;
+	close cr_dept;
+end; 	
+   /             
+          	 
+       
+		
+exec abc;
