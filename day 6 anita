@@ -1,0 +1,570 @@
+
+Objects 
+
+Practice 1
+
+•	Create a user defined data type named “MARKS_TYPE” having the following subfields
+
+Column	Data type and size
+Subject	VARCHAR 2 (25)
+midTermMarks	NUMBER (3)
+annualMarks	NUMBER(3)
+
+
+•	Create an object table with name “MYMARKS” having a single column of type MARKS_TYPE.
+•	Insert any 3 records in the table with relevant data
+•	Fire an appropriate SELECT command to get midTermMarks and annualMarks for all records for the given subject
+ANS:
+
+create type MARKS_TYPE as OBJECT(
+subject varchar2(25),
+midTermMarks NUMBER (3),
+annualMarks NUMBER(3)
+);
+/
+
+create table MYMARKS(data MARKS_TYPE);
+insert into MYMARKS values(MARKS_TYPE('Physics',50,70));
+insert into MYMARKS values(MARKS_TYPE('Chemistry',60,80));
+insert into MYMARKS values(MARKS_TYPE('Maths',70,90));
+select c.data.midTermMarks,c.data.annualMarks from MYMARKS c;
+
+
+
+o/p
+DATA.MIDTERMMARKS DATA.ANNUALMARKS
+----------------- ----------------
+               50               70
+               60               80
+               70               90
+--------------------------------------------------------------------------------------
+
+
+
+
+Practice 2
+
+•	Create table “students” having the following design
+
+	Column		Data type and size	Constraint
+	studentName	VARCHAR 2 (25)	
+	rollNo		NUMBER (3)	Primary Key
+	Score		MARKS_TYPE	
+
+•	Insert any 3 relevant records in the table.
+•	Fire an appropriate SELECT query to get the score of a student with the given rollNO
+•	Fire an appropriate command to increase the annualMarks of the student with given rollNo by five marks
+
+ANS:
+
+create type MARKS_TYPE as OBJECT(
+subject varchar2(25),
+midTermMarks NUMBER (3),
+annualMarks NUMBER(3)
+);
+/
+
+create table students(studentName VARCHAR2(25),
+		       rollNo NUMBER(3) primary key,
+			Score MARKS_TYPE
+		      );
+
+insert into students values('ABC',100,MARKS_TYPE('Phys',40,50));
+
+insert into students values('DEF',101,MARKS_TYPE('Chem',60,70));
+
+insert into students values('GHI',102,MARKS_TYPE('Math',80,90));
+
+select s.Score.subject,s.Score.midTermMarks,s.Score.annualMarks from students s where rollNo=100;
+select s.Score.annualMarks+5 as newamarks from students s where rollNo=100;
+
+
+-------------------------------------------------------------------------------------------------------------
+Practice 3
+
+•	Create user defined data type named “ICECREAM_TYPE” with the following data members
+
+	Column		Data type and size
+	flovorNo	NUMBER(2)
+	Fname		VARCHAR(10)
+	Cost		NUMBER(3)
+	Hastopping	CHAR(1)   
+	Can be Y or N
+
+•	Create table named “menu” with the following design and insert five records into it.
+
+	Column		Data type and size	Constraint
+	MenuNo		NUMBER(2)		Primary key
+	mainCourse	VARCHAR2(15)		Not Null
+	Desert		ICECREAM_TYPE	
+	Colddrink	CHAR(6)	
+
+
+•	Retrieve cost and name of an icecream from menu by specifying its flavor number.
+•	Update cost and maincourse column  from menu by specifying its MenuNo.
+
+
+ANS:
+	create type ICECREAM_TYPE as object(
+          	flovorNo NUMBER(2),
+	  	Fname VARCHAR(10),
+	  	Cost NUMBER(3),
+	  	Hastopping CHAR(1) 
+		
+              );
+         /	
+
+	
+         create table menu(
+               MenuNo NUMBER(2) primary key,
+		mainCourse VARCHAR2(15) not null,
+		Desert ICECREAM_TYPE check(desert.Hastopping in ('Y','N')),	
+		Colddrink CHAR(6)	
+			);
+
+
+insert into menu values(11,'ICECREAM',ICECREAM_TYPE(1,'Bscotch',100,'Y'),'Sprite');
+
+insert into menu values(12,'ICECREAM1',ICECREAM_TYPE(2,'Vanilla',200,'Y'),'Pepsi');
+insert into menu values(13,'ICECREAM2',ICECREAM_TYPE(3,'Bforest',300,'N'),'Thums');
+
+select m.desert.cost,m.desert.Fname from menu m where m.desert.flovorNo=2;
+
+update menu m 
+set m.desert.cost=250,m.maincourse='ICECREAM2'
+where m.MenuNo=13;
+
+(now check the row which is updated or not?
+  select m.desert.cost,m.maincourse from menu m where m.MenuNo=13;
+)
+
+--------------------------------------------------------------------------------------------
+**********Collections***********
+
+
+Practice 1
+
+Create an object type named SKILLS_TYPE with the following subfields
+
+Skill_Id	NUMBER (2)
+Skill_Name	VARCHAR2(20)
+Skill_rating	NUMBER (2)
+ 
+Skill Rating can be between – 1 to 10.
+
+•	Create a nested table type SKILL_TAB_TYPE of the above mentioned SKILLS_TYPE.
+ANS:
+
+create type SKILLS_TYPE as object(
+				Skill_Id NUMBER (2),
+				Skill_Name VARCHAR2(20),
+				Skill_rating NUMBER (2)
+					);
+				/
+	create type SKILL_TAB_TYPE as table of SKILLS_TYPE;
+	/
+
+  create table skill(sinfo SKILL_TAB_TYPE)
+  nested table sinfo store as spoint;
+
+
+if told to insert values
+insert into skill values(SKILL_TAB_TYPE(SKILLS_TYPE(10,'Drawing',77)));
+
+fire the queries to retrive data:
+      select t.Skill_Name from skill s,table(s.sinfo) t;
+-------------------------------------------------------------------------------------------------------------
+Practice 2
+
+	A.	Create an object type CUST_TAB with below attributes
+		-	Cust_id
+		-	Cust_Name
+		-	Plan_Name
+	B.	Create suitable collection type CUST_DETAILS of CUST_TAB type.
+		One customer may have many plans .
+
+	C.	Create a table Cust_Tab_details as follows :
+
+		Columname                            	Constraint  	Datatype
+		Srno                          		Primary Key      Number(10)
+		Cust_Info                      	 	             	CUST_DETAILS
+		Cust_number		                                Number(10)
+		                             
+	D.	 Insert 2 rows in the above table 
+		Atleast 2 CUST_TAB entries per srno.
+	E.	Write the select query to display Sr.no and Cust_info from cust_tab_detail table
+		Note : Write SQL select command not the procedure.
+				
+ANS:
+  create type CUST_TAB as object(
+				Cust_id number(2),
+				Cust_Name varchar2(20),
+				Plan_Name varchar2(20)
+			);
+			/ 
+   create type CUST_DETAILS as table of CUST_TAB;
+		/
+create table Cust_Tab_details(
+			     Srno Number(10) primary key,
+			     Cust_Info CUST_DETAILS,
+			     Cust_number Number(10)
+				)
+nested table Cust_Info store as custpointr;
+
+insert into Cust_Tab_details values(10,CUST_DETAILS(CUST_TAB(1,'ABC','Plan A'),CUST_TAB(2,'DEF','Plan B')),100);
+
+select c.Srno,t.Cust_id,t.Cust_Name,t.Plan_Name from Cust_Tab_details c,table(c.Cust_Info) t;
+-------------------------------------------------------------------------------------------------------------
+
+Practice 3
+
+
+•	Create a nested table type SKILL_TAB_TYPE of the above mentioned SKILL_TYPE type.
+
+•	Create a table EMPMAIN with the following structure:
+
+	Emp_No		NUMBER (4)	PRIMARY KEY
+	Emp_Name	CHAR (30)	
+	All_Skills	SKILL_TAB_TYPE	
+
+     Give appropriate names for the corresponding storage tables
+•	Insert the following record in the table EMPMAIN. 
+	Example:
+	Emp_No	Emp_Name	All_Skills
+	1001	Aman Dev	101	Design	9
+				201	Code	10
+				301	Test	8
+
+•	Insert 2-3 more records in EMPMAIN.
+•	Update the Skill Rating for Aman for Skill 301 to 9. (Use TABLE CLAUSE).
+•	Delete all the records where Skill Name is Null.
+•	Create a procedure named ADD_SKILL that will accept Emp_No  and skill details as parameters and 
+	add the skill details to the corresponding record from the EMPMAIN table. 
+	The procedure should handle all the probable errors by displaying the appropriate error messages on the screen.
+•	Give a call to ADD_SKILL from an anonymous PL/SQL block
+
+ANS:
+create type SKILL_TYPES as object(
+				Skill_Id NUMBER (3),
+				Skill_Name VARCHAR2(20),
+				Skill_rating NUMBER (2)
+					);
+				/
+	create type SKILL_TAB_TYPES as table of SKILL_TYPES;
+	/
+
+create table EMPMAINS(
+			Emp_No NUMBER(4) PRIMARY KEY,
+			Emp_Name CHAR (30),	
+			All_Skills SKILL_TAB_TYPES	
+			)
+nested table All_Skills store as empointr;
+/
+
+insert into EMPMAINS values(1001,'Aman Dev',SKILL_TAB_TYPES(SKILL_TYPES(101,'Design',9),SKILL_TYPES(201,'Code',10),SKILL_TYPES(301,'Test',8)));
+
+
+update table(select All_Skills from EMPMAINS where Emp_Name='Aman Dev')
+set Skill_rating=9
+where Skill_Id=301;
+
+*To check udpated skill_rating:
+select t.Skill_rating from EMPMAINS e,table(e.All_Skills) t where t.Skill_Id=301;
+
+*deleting record ...
+
+insert into EMPMAINS values(1002,'aa',SKILL_TAB_TYPES(SKILL_TYPES(401,null,7)));
+delete from table(select All_Skills from EMPMAINS where Emp_Name='aa') where Skill_Name is null;
+
+create or replace procedure ADD_SKILL(eno number,sid number,sname varchar2,srating number)
+as
+
+begin
+insert into table(select All_Skills from EMPMAINS where Emp_No=eno) values(sid,sname,srating);
+exception
+when no_data_found then 
+dbms_output.put_line('No record inserted');
+when others then
+dbms_output.put_line('Some other error occured');
+end; 
+/
+
+declare
+begin
+ADD_SKILL(1001,501,'Drawing',6);
+end;
+/
+-------------------------------------------------------------------------------------------
+
+
+Practice 4
+
+Create an object type VEHICLE_TYPE to record the vehicle details owned by an employee.
+ VEHICLE_TYPE  has the following design :
+
+
+	Vehicle_No	VARCHAR2(12)
+	Vehicle_Type	CHAR(1)  
+	(T for two wheeler and F for four wheeler)
+	Monthly_Expense	NUMBER(7)
+
+
+•	Create a varray named VEHICLE_ARR of VEHICLE_TYPE that can store max of 3 vehicle details for each employee.
+
+•	Create a table EMP_VARRAY with the following design :
+
+	Emp_No	NUMBER (4)	PRIMARY KEY
+	Emp_Name	VARCHAR2 (30)	
+	vehicleList	VEHICLE_ARR	
+
+•	Add two relevant records in the table with only one vehicleList member for each emp_no.
+
+•	Write a procedure named ADD_VEHICLE_DETAILS that accepts Emp_no and vehicle details and adds the vehicle details for the corresponding Emp_no in the EMP_VARRAY table. 
+The procedure should handle all the probable errors by displaying the appropriate error messages on the screen.
+
+•	Give a call to ADD_VEHICLE_DETAILS from an anonymous PL/SQL block
+ANS:
+CREATE TYPE VEHICLE_TYPE AS OBJECT
+	(
+	VEHICLE_NO VARCHAR2(12),
+	VEHICLE_TYPE CHAR(1),
+	MONTHLY_EXPENSES NUMBER(7)
+	);
+	/
+
+TYPE CREATED.
+
+CREATE TYPE VEHICLE_ARR AS VARRAY(3) OF VEHICLE_TYPE;
+	/
+
+Type created.
+
+CREATE TABLE EMP_VARRAY1
+	(
+	EMP_NO NUMBER(4) PRIMARY KEY,
+	EMP_NAME VARCHAR2(30),
+	VEHICLE_LIST VEHICLE_ARR
+	);
+
+Table created.
+INSERT INTO EMP_VARRAY1 VALUES(1,'PANDU',VEHICLE_ARR(VEHICLE_TYPE('AP123','F',100000)));
+
+1 row created.
+
+
+.	INSERT INTO EMP_VARRAY1 VALUES(2,'SWEETY',VEHICLE_ARR(VEHICLE_TYPE('BP234','T',500000)));
+
+1 row created.
+
+
+//**Procedore+insert....not executed properly**
+create or replace procedure ADD_VEHICLE_DETAILS(eno number,vno varchar2,vtype char,mexpenses number)
+as
+
+begin
+insert into varray(select VEHICLE_LIST from EMP_VARRAY1 where Emp_No=eno) values(vno,vtype,mexpenses);
+exception
+when no_data_found then 
+dbms_output.put_line('No record inserted');
+when others then
+dbms_output.put_line('Some other error occured');
+end; 
+/
+
+declare
+begin
+ADD_VEHICLE_DETAILS(1001,501,'Drawing',6);
+end;
+/
+					***THIS SHOULD BE CLARIFIED BY MAM*****
+
+
+------------------------------------------------------------------------------------------------------------
+Practice 5
+
+A.	create an object named paper_obj with following attributes:
+	paperid
+    	paperName
+     	publishDate
+
+B.	Create suitable collection type paper_details of paper_obj type.
+C.	Create a table Author_Tab as follows :
+
+	Columname                            	Constraint  		Datatype
+	Authorid                        	Primary Key            	Number(10)
+	AuthorName                      	 	             	Varchar2(20)
+	Papers	 	                          			paper_details
+		                             
+D.	 Insert 2 rows in the above table 
+Atleast 2 paper_obj entries per author.
+ANS:
+create type paper_obj as object(
+		paperid number,
+    		paperName varchar2(20),
+     	        publishDate date
+                  );
+       /
+ create type paper_details as table of paper_obj;
+
+CREATE TABLE AUTHOR_TAB
+	(
+	AUTHOR_ID NUMBER(10) PRIMARY KEY,
+	AUTHOR_NAME VARCHAR2(20),
+	PAPERS PAPER_DETAILS
+	)
+	NESTED TABLE PAPERS STORE AS apointr;
+INSERT INTO AUTHOR_TAB VALUES(111,'Ani',PAPER_DETAILS(PAPER_OBJ(101,'DECCAN','12-MAR-95'),PAPER_OBJ(202,'TIMES','17-JAN-2016')));
+
+1 row created.
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------
+Practice 6 
+
+Create an object type to maintain the history of salary hike given to employees named INCREMENT_TYPE having the following design:
+
+Incr_ID	NUMBER (3)
+Incr_Date	DATE
+Incr_Amt	NUMBER (7)
+
+
+•	Create a table named EMP_DETAIL with one of the column having the data type as SKILLS_TYPE and another one INCREMENT_TYPE. 
+
+Emp_No	NUMBER (4)
+Emp_Name	CHAR (30)
+Emp_Skills	SKILLS_TYPE
+Emp_Incr	INCREMENT_TYPE
+
+
+•	Insert few records in table EMP_DETAIL. 
+
+•	Write a procedure that will accept Emp_No as a parameter and display the data from EMP_DETAIL as follows:
+
+Employee No:   XXXXXXX		Employee Name: XXXXXXXXXX
+___________________________________________________
+Skill Set
+	
+Skill ID: XXX		Skill Name: XXXXX		Rating: XX
+___________________________________________________
+Increment
+
+Increment ID: XXXX	Increment Date: XXXXXX	 Amount: XXXXXX
+      
+       
+ANS:
+
+CREATE TYPE INCREMENT_TYPE_OBJ AS OBJECT
+	(
+	INCR_ID NUMBER(3),
+	INCR_DATE DATE,
+	INCR_AMT NUMBER(7)
+	);
+
+	/ 
+CREATE TYPE SKILLS_TYPE AS OBJECT
+	(
+	SKILL_ID NUMBER(2),
+	SKILL_NAME VARCHAR(20),
+	SKILL_RATING NUMBER(2)
+	);
+	/
+
+CREATE TABLE EMP_DETAILS_TABL
+	(
+	EMP_NO NUMBER(4),
+	EMP_NAME CHAR(4),
+	EMP_SKILLS SKILLS_TYPE,
+	EMP_INCR INCREMENT_TYPE_OBJ
+	);
+ INSERT INTO EMP_DETAILS_TABL VALUES(111,'JESY',SKILLS_TYPE(01,'JAVA',10),INCREMENT_TYPE_OBJ(011,'16-FEB-2016',8000));
+
+INSERT INTO EMP_DETAILS_TABL VALUES(222,'SOWJ',SKILLS_TYPE(02,'MAINFRMS',10),INCREMENT_TYPE_OBJ(022,'17-MAR-2016',8500));SQL> SELECT * FROM EMP_DETAILS_TABL;
+
+    EMP_NO EMP_
+---------- ----
+EMP_SKILLS(SKILL_ID, SKILL_NAME, SKILL_RATING)
+-----------------------------------------------------------
+EMP_INCR(INCR_ID, INCR_DATE, INCR_AMT)
+-----------------------------------------------------------
+       111 JESY
+SKILLS_TYPE(1, 'JAVA', 10)
+INCREMENT_TYPE_OBJ(11, '16-FEB-16', 8000)
+
+       222 SOWJ
+SKILLS_TYPE(2, 'MAINFRMS', 10)
+INCREMENT_TYPE_OBJ(22, '17-MAR-16', 8500)
+
+    EMP_NO EMP_
+---------- ----
+EMP_SKILLS(SKILL_ID, SKILL_NAME, SKILL_RATING)
+-----------------------------------------------------------
+EMP_INCR(INCR_ID, INCR_DATE, INCR_AMT)
+-----------------------------------------------------------
+
+
+
+
+
+
+
+.	CREATE OR REPLACE PROCEDURE P55(ENO NUMBER)
+	AS
+
+	X NUMBER(4);
+	Y VARCHAR2(30);
+	S1  NUMBER(2);
+	S2 VARCHAR(20);
+	S3 NUMBER(2);
+	I1 NUMBER(3);
+	I2 DATE;
+	I3 NUMBER(7);
+
+	BEGIN
+
+	SELECT A.EMP_NO,A.EMP_NAME,A.EMP_SKILLS.SKILL_ID,A.EMP_SKILLS.SKILL_NAME,A.EMP_SKILLS.SKILL_RATING,A.EMP_INCR.INCR_ID,A.EMP_INCR.INCR_DATE,A.EMP_INCR.INCR_AMT INTO X,Y,S1,S2,S3,I1,I2,I3 FROM EMP_DETAILS_TABL A WHERE A.EMP_NO=ENO;
+
+		DBMS_OUTPUT.PUT_LINE('---------------------------------------------------------------------------');
+
+		DBMS_OUTPUT.PUT_LINE('EMPLOYEE NO: '||CHR(9)||X||CHR(9)||CHR(9)||CHR(9)||'EMPLOYEE NAME '||CHR(9)||Y);
+
+		DBMS_OUTPUT.PUT_LINE('---------------------------------------------------------------------------');
+
+		DBMS_OUTPUT.PUT_LINE('SKILL SET');
+
+		DBMS_OUTPUT.PUT_LINE('SKILL ID: '||CHR(9)||S1||CHR(9)||CHR(9)||'SKILL NAME: '||CHR(9)||S2||CHR(9)||CHR(9)||'RATING: '||CHR(9)||S3);
+
+		DBMS_OUTPUT.PUT_LINE('---------------------------------------------------------------------------'); 
+	
+		DBMS_OUTPUT.PUT_LINE('INCREMENT');
+
+		DBMS_OUTPUT.PUT_LINE('INCREMENT ID: '||CHR(9)||I1||CHR(9)||CHR(9)||'INCREMENT DATE: '||CHR(9)||I2||CHR(9)||CHR(9)||'INCREMENT AMOUNT: '||CHR(9)||I3);
+
+		DBMS_OUTPUT.PUT_LINE('---------------------------------------------------------------------------'); 
+
+END;
+/
+
+
+Procedure created.
+
+
+O/P====
+
+	SQL> EXEC P55(222);
+
+-----------------------------------------------------------------------------------------------------------------
+EMPLOYEE NO:    222                     EMPLOYEE NAME   SOWJ
+-----------------------------------------------------------------------------------------------------------------
+SKILL SET
+SKILL ID:       2               SKILL NAME:     MAINFRMS                RATING:         10
+-----------------------------------------------------------------------------------------------------------------
+INCREMENT
+INCREMENT ID:   22              INCREMENT DATE:         17-MAR-16               INCREMENT AMOUNT:       8500
+------------------------------------------------------------------------------------------------------------------
+
+PL/SQL procedure successfully completed.
+
+
+
