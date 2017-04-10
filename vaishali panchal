@@ -1,0 +1,106 @@
+Column name	Datatype / Width	Comments
+Reg_id	Char (4)	Primary key
+Reg_name	Varchar2 (20)	Not null
+
+insert into region values ('CHNN','Chennai NORTH');
+insert into region values ('CHNE','Chennai EAST');
+insert into region values ('CHNW','Chennai WEST');
+insert into region values ('CHNS','Chennai SOUTH');
+
+Above is the region table having
+
+
+Column name	Datatype / Width	Comments
+Product_id	Char (5)	Primary key
+Prod_name	Varchar2 (20)	Not null
+Qty	Int	Not null
+Date_Purchase	Date	
+Reg_id	Char(4)	Foreign key
+ Above is the product table
+
+insert into product values (‘P001’,’Scale’,135,’25-NOV-16’,'CHNN');
+insert into product values (‘P002’,’Rubber’,230,’21-DEC-14’,' CHNS');
+insert into product values (‘P003’,’Stamp’,525,’15-OCT-15’,'CHNN');
+insert into product values (‘P004’,’Box’,200,’20-NOV-12’,' CHNW');
+insert into product values (‘P005’,’Ruler’,455,’15-APR-15’,' CHNE');
+
+
+;
+
+\
+Column name	Datatype / Width	Comments
+Saleman_id	Char (5)	Primary key
+Saleman_name	Varchar2 (20)	Foreign key
+Regn_num	Char (12)	Registration number; Not null 
+Phone_num	Char (10)	
+		
+
+Above is saleman table
+insert into salesman values (‘S101’,’Robert’,35,’122’,'8012345608');
+insert into salesman values (‘S102’,’Dennis’,30,’456’,' 9876554321');
+insert into salesman values (‘S103’,’Sam’,25,’789’,'9914002134');
+insert into salesman values (‘S104’,’Hansel’,20,’341’,'8012668934');
+
+
+Column name	Datatype / Width	Comments
+Order_id	Char (5)	Primary key
+Saleman_id	Varchar2 (20)	Foreign key
+Sales_qty	Int	
+Date_sales	DATE	
+Product_id	Char (5)	Foreign key
+
+Above is the sales table
+insert into sales values (‘O111’,’S101’,35,’12-DEC-15’,’P001’);
+insert into sales values (‘O112’,’S102’,25,’15-NOV-12’,’P002’);
+insert into sales values (‘O113’,’S101’,27,’12-DEC-10’,’P001’);
+insert into sales values (‘O114’,’S104’,55,’18-OCT-13’,’P003’);
+insert into sales values (‘O115’,’S102’,40,’10-MAR-12’,’P004’);
+insert into sales values (‘O116’,’S101’,45,’19-JAN-14’,’P003’);
+
+
+    Q1. Create a package “Insert_Product_Pack” which contains a procedure named “PROC_ADD_Product” to insert a record into the table named “Product” with the following parameters Prod_Name, Prod_ID, Qty						[10 marks]
+
+	Perform the following validations :						
+•	Prod_Name, Prod_Id must be a unique combination in 
+   the  table named “Product”.				[2 Marks]
+•	Date_Purchase should be less than the system date. [1 Mark  ]
+	Region_Id should exist in the table named “Region”.	[1 Mark  ]
+	
+•	Insert the record in the table named “Product” if all the above validations are met and display a message “1 Record inserted”. [1 mark]
+If any of the validations is not satisfied then raise an appropriate
+
+
+Q2. Write a function named “UPDATE_new_Product” that takes prod_id qty Inc_or_dec_id takes only 1 or -1 to indicate increase or decrease in the current qty. 
+
+Function declaration and logic					[4 Marks]
+Pass suitable values to inc_or_dec_id ,reg_idwith suitable messages
+[2 Marks]
+Calling the procedure from plsql block with test cases		[2 marks]
+
+
+Q3. 
+
+  A. Create a type named “Broker_Type” with the following attributes
+
+Field Name	Data Type
+Broker_ID	Number(4)
+Broker_Name	Varchar2(20)
+
+
+	
+								   	[1 Marks] 
+B. One region can have many brokers. Select a collection accordingly. [1 mark]
+
+C. Create a table named “Region_Tab” with following attributes
+
+Field Name	Data Type
+Region_ID	Char(4)
+Region_Name	Varchar2(20)
+Brokers	broker_Type
+
+	
+
+ 	  	[2 Marks]
+
+D. Insert appropriate records into the table named “Region_Tab”. [1 Marks]
+
