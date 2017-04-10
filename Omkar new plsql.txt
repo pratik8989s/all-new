@@ -1,0 +1,914 @@
+﻿d3q1 
+
+create or replace function F1(sala number) RETURN NUMBER as
+
+CNT INT;
+
+BEGIN
+SELECT COUNT(ENAME) INTO CNT FROM EMP WHERE SAL=SALA;
+
+IF CNT=0 THEN
+	RETURN 0;
+ELSIF CNT=1 THEN
+	RETURN 1;
+ELSE  
+	RETURN CNT;
+END IF;
+END;
+/
+---------------------------------------
+create or replace procedure d3q1(saly number) as
+
+ANS NUMBER;
+
+BEGIN 
+
+SELECT SAL INTO ANS FROM EMP WHERE SAL=SALY;
+
+DBMS_OUTPUT.PUT_LINE(ANS);
+
+
+
+EXCEPTION
+
+WHEN NO_DATA_FOUND THEN 
+	DBMS_OUTPUT.PUT_LINE('NO DATA '||SALY);
+	INSERT INTO ERR_TABLE VALUES('NO DATA '||SALY);
+
+WHEN TOO_MANY_ROWS THEN 
+	DBMS_OUTPUT.PUT_LINE('TOO MANY '||SALY);
+	INSERT INTO ERR_TABLE VALUES('TOO MANY '||SALY);
+END ;
+/
+
+```````````````````````````````````````````````````
+D3Q2
+
+CREATE OR REPLACE PROCEDURE D3Q2(EMPN INT,ENAM VARCHAR2,JOBA VARCHAR2,SALY NUMBER,DEP INT,MGRA INT,COMMA NUMBER DEFAULT NULL,HIRE DATE DEFAULT SYSDATE) AS
+AB1 EXCEPTION;
+AB2 EXCEPTION;
+AB3 EXCEPTION;
+
+PRAGMA EXCEPTION_INIT(AB1,-40000);
+PRAGMA EXCEPTION_INIT(AB2,-40001);
+PRAGMA EXCEPTION_INIT(AB3,-40002);
+
+CNT INT;
+CNT1 INT;
+CNT2 INT;
+BEGIN
+
+SELECT COUNT(ENAME) INTO CNT FROM EMP WHERE EMPNO=EMPN;
+
+IF CNT>0 THEN
+
+	RAISE ab1;
+END IF;
+
+SELECT COUNT(ENAME) INTO CNT1 FROM EMP WHERE DEPTNO=DEP;
+
+IF CNT1=0 THEN
+	RAISE AB2;
+END IF;
+
+SELECT COUNT(ENAME) INTO CNT2 FROM EMP WHERE MGR=MGRA;
+
+IF CNT2=0 THEN
+	RAISE AB3;
+END IF;
+
+INSERT INTO EMP(EMPNO,ENAME,SAL,JOB,MGR,DEPTNO,COMM,HIREDATE) VALUES(EMPN,ENAM,SALY,JOBA,MGRA,DEP,COMMA,HIRE);
+
+EXCEPTION
+
+WHEN OTHERS THEN
+	IF SQLCODE=-40000 THEN
+		DBMS_OUTPUT.PUT_LINE('EMPNO EXITS');
+	END IF;
+	
+	IF SQLCODE=-40001 THEN
+		DBMS_OUTPUT.PUT_LINE('NO SUCH '||DEP);
+	END IF;
+	
+	IF SQLCODE=-40002 THEN
+		DBMS_OUTPUT.PUT_LINE('MANAGET ID'||MGRA);
+	END IF;
+END;
+/
+`````````````````````````````````````````````````````
+
+CREATE OR REPLACE PROCEDURE D3Q3 AS
+
+AB1 EXCEPTION;
+
+PRAGMA EXCEPTION_INIT(AB1,-45000);
+CNT INT;
+BEGIN
+
+SELECT count(JOB) INTO CNT FROM EMP WHERE ENAME='PRESIDENT';
+
+IF CNT>1 THEN
+	RAISE AB1;
+END IF;
+
+EXCEPTION
+
+WHEN OTHERS THEN
+	IF SQLCODE=-40001 THEN
+		DBMS_OUTPUT.PUT_LINE('TOO MANY PRESIDENT');
+
+	END IF ;
+END;
+/
+`````````````````````````````````````````````````````
+d3q4
+
+CREATE TABLE MOVIE_BOOKING(
+BOOK_ID INT PRIMARY KEY,
+USER_NAME VARCHAR2(20) NOT NULL,
+THEATER_ID INT UNIQUE,
+MOVIE_ID INT UNIQUE,
+SHOW_ID INT UNIQUE
+
+
+`````````````````````````````````````````````````````
+d2q6
+CREATE OR REPLACE PROCEDURE D1
+AS
+CURSOR C1 IS SELECT * FROM DEPT;
+EDATA C1%ROWTYPE;
+CURSOR C2 IS SELECT EMPNO,ENAME,SAL,JOB FROM EMP WHERE DEPTNO=EDATA.DEPTNO;
+DATA C2%ROWTYPE;
+CNT INT;
+BEGIN
+OPEN C1;
+LOOP
+	FETCH C1 INTO EDATA;
+	EXIT WHEN C1%NOTFOUND;
+	SELECT COUNT(ENAME) INTO CNT FROM EMP WHERE 	DEPTNO=EDATA.DEPTNO;
+	IF CNT>0 THEN
+	DBMS_OUTPUT.PUT_LINE(EDATA.DEPTNO||'  '||	EDATA.DNAME);
+
+	OPEN C2;
+	LOOP
+		FETCH C2 INTO DATA;
+		EXIT WHEN C2%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE(DATA.EMPNO||'  '||DATA.ENAME||'  '||DATA.SAL||'  '||DATA.JOB);
+	END LOOP;
+	CLOSE C2;
+	END IF;
+END LOOP;
+CLOSE C1;
+
+END;
+/                                                     `````````````````````````````````````````````````````
+
+CREATE OR REPLACE PROCEDURE USER_Q(EMN INT,JOBA OUT VARCHAR2,SALY OUT NUMBER) AS
+AB1 EXCEPTION;
+CNT INT;
+
+BEGIN
+SELECT COUNT(ENAME) INTO CNT FROM EMP WHERE EMPNO=EMN;
+
+IF CNT=1 THEN
+	SELECT JOB,SAL INTO JOBA,SALY FROM EMP WHERE EMPNO=EMN;
+ELSE
+	RAISE AB1;
+END IF;
+
+EXCEPTION
+
+WHEN AB1 THEN 
+	DBMS_OUTPUT.PUT_LINE('ERROR');
+
+END;
+/
+
+VARIABLE Z1 VARCHAR2(20);
+VARIABLE Z2 NUMBER;
+
+BEGIN
+
+USER_Q(7546418,:Z1,:Z2);
+
+END;
+/
+===============================================/
+CREATE OR REPLACE PROCEDURE USER_Q(EMN INT,JOBA OUT VARCHAR2,SALY OUT NUMBER) AS
+AB1 EXCEPTION;
+
+BEGIN
+
+ 	SELECT JOB,SAL INTO JOBA,SALY FROM EMP WHERE EMPNO=EMN;
+
+ 	DBMS_OUTPUT.PUT_LINE(JOBA||' '||SALY);
+
+ EXCEPTION
+
+ 	WHEN NO_DATA_FOUND THEN
+ DBMS_OUTPUT.PUT_LINE('ERROR');
+
+ END;
+ /
+```````````````````````````````````````````
+CREATE OR REPLACE FUNCTION F2(EMN INT,SAL2 NUMBER,
+COMMA1 NUMBER DEFAULT NULL) RETURN NUMBER AS
+
+ANS NUMBER;
+
+BEGIN
+
+IF COMMA1 IS NULL THEN
+ANS:=(SAL2)*12;
+ELSE
+ANS:=(SAL2+COMMA1)*12;
+END IF;
+
+RETURN ANS;
+
+EXCEPTION
+
+WHEN OTHERS THEN
+	DBMS_OUTPUT.PUT_LINE('ERROR'||SQLCODE);
+
+
+END;
+/
+`````````````````````````````````````````````````````
+
+CREATE OR REPLACE FUNCTION D12(PD INT) RETURN BOOLEAN AS
+CNT INT;
+BEGIN
+
+SELECT COUNT(DNAME) INTO CNT FROM DEPT WHERE DEPTNO=PD;
+
+IF CNT!=0 THEN
+	RETURN TRUE;
+ELSE 
+	RETURN FALSE;
+END IF;
+
+EXCEPTION 
+WHEN OTHERS THEN 
+	DBMS_OUTPUT.PUT_LINE('ERROR');
+END;
+/
+-------------------------------
+CREATE OR REPLACE PROCEDURE D123(DEP INT) AS
+
+CNT1 INT;
+ANS BOOLEAN;
+AB1 EXCEPTION;
+
+PRAGMA EXCEPTION_INIT(AB1,-45000);
+
+BEGIN
+
+ANS:=D12(DEP);
+
+IF ANS=TRUE THEN
+	SELECT COUNT(DNAME) INTO CNT1 FROM EMP WHERE DEPTNO=DEP;
+	DBMS_OUTPUT.PUT_LINE('COUNT='||CNT1);
+ELSE 
+	RAISE AB1;
+END IF;
+
+EXCEPTION 
+WHEN OTHERS THEN
+	IF SQLCODE=-45000 THEN
+	DBMS_OUTPUT.PUT_LINE('ERROR');
+ELSE 
+	DBMS_OUTPUT.PUT_LINE('ERROR 546');
+END IF;
+
+END;
+/ 
+````````````````````````````````````
+D3Q4
+
+CREATE OR REPLACE FUNCTION F13(EMN INT) RETURN BOOLEAN
+AS
+CNT INT;
+
+BEGIN
+
+SELECT COUNT(ENAME) INTO CNT FROM EMP WHERE EMPNO=EMN;
+
+IF CNT=1 THEN
+	RETURN TRUE;
+ELSE
+	RETURN FALSE;
+END IF;
+
+END;
+/
+
+
+CREATE OR REPLACE PROCEDURE F1234(EM1 INT,EM2 INT) AS
+
+ANS1 BOOLEAN;
+ANS2 BOOLEAN;
+
+AB1 EXCEPTION;
+AB2 EXCEPTION;
+AB3 EXCEPTION;
+
+BEGIN
+
+ANS1:=F13(EM1);
+ANS2:=F13(EM2);
+
+IF ANS1=TRUE THEN 	
+	UPDATE EMP SET SAL=SAL*1.10 WHERE EMPNO=EM1;
+	DBMS_OUTPUT.PUT_LINE('1234');
+END IF;
+``````````````````````````````````````````````````
+
+
+IF ANS2=TRUE THEN 	
+	UPDATE EMP SET SAL=SAL*1.20 WHERE EMPNO=EM2;
+	DBMS_OUTPUT.PUT_LINE('121');
+END IF;
+
+IF ANS1=FALSE THEN 
+	IF ANS2=FALSE THEN 	
+		RAISE AB1;
+	ELSE 
+		RAISE AB2;
+	END IF;	
+ELSIF ANS2=FALSE THEN
+	RAISE AB3;
+END IF;
+
+EXCEPTION
+
+WHEN AB1 THEN
+	DBMS_OUTPUT.PUT_LINE('BOTH ARE WRONG');
+
+WHEN AB2 THEN
+	DBMS_OUTPUT.PUT_LINE('1ST IS WRONG');
+
+WHEN AB3 THEN
+	DBMS_OUTPUT.PUT_LINE('2ND IS WRONG');
+END;
+/	
+`````````````````````````````````````````````````````````````````
+
+D6Q5
+
+CREATE TYPE paper_obj AS OBJECT(
+	PAPID INT,
+	PAPNAME VARCHAR2(20),
+	PDATE DATE );
+/
+
+CREATE TYPE PAPER_DET IS TABLE OF PAPER_OBJ;
+
+CREATE TABLE AUTHOR_TAB (
+	AUTH_ID NUMBER(10) PRIMARY KEY,
+	AUTH_NAME VARCHAR2(20),
+	PAPERS PAPER_DET) NESTED TABLE PAPERS STORE AS PAP1;
+```````````````````````````````````````````````````
+
+
+CREATE TYPE PAPR1 IS OBJECT(
+	PAPID INT,
+	PAPNA VARCHAR2(20),
+	PDATA DATE);
+/
+
+CREATE TYPE PAP23 IS TABLE OF PAPR1 ;
+
+CREATE TABLE AUTHER2 (
+	AUTHID NUMBER(10),
+	AUTHNAMA VARCHAR2(20),
+	PAPERS1 PAP23) NESTED TABLE PAPERS1 STORE AS PAP2;
+
+
+INSERT INTO AUTHER2 VALUES(1000,'VINAY',PAP23(PAPR1(123,'OMKAR',SYSDATE),PAPR1(124,'VARSHA',SYSDATE)));
+
+
+
+INSERT INTO AUTHER2 VALUES
+(2000,'DINESH',PAP23(PAPR1(125,'RAM',SYSDATE),PAPR1(126,'SHAM',SYSDATE)));
+
+`````````````````````````````````````````````````````
+
+CREATE TYPE VEHICLE_TYPE AS OBJECT
+(VEHICLE_NO VARCHAR2(12),
+ VEHICLE_TYPE CHAR(1),
+ MONTHLY_EXPENSES NUMBER(7));
+/
+
+CREATE OR REPLACE TYPE VEHICLE_ARR IS VARRAY(3) OF VEHICLE_TYPE;
+
+CREATE TABLE EMP_VARRAY
+(EMP_NO NUMBER(4) PRIMARY KEY,
+ EMP_NAME VARCHAR2(30),
+ VEHICLELIST VEHICLE_ARR);
+/
+
+INSERT INTO EMP_VARRAY VALUES(101,'VINAY',VEHICLE_ARR(VEHICLE_TYPE('C001','F',2000)));
+---------------------------------------------
+
+CREATE OR REPLACE PACKAGE PKGDISPLAY_DETAILS AS
+
+FUNCTION FNDISPLAY(pID INT) RETURN VARCHAR2(20);
+PROCEDURE PRDISPCOUNT(AUTHID INT);
+END;
+/
+========
+
+CREATE OR REPLACE PACKAGE BODY PKGDISPLAY_DETAILS IS FUNCTION FNDISPLAY(PID INT) RETURN VARCHAR2(20)
+AS
+CNT INT;
+
+BEGIN
+
+SELECT COUNT(PAPERID) INTO CNT FROM scholar_domain_publication where paperid=pid;
+
+if cnt=1 then
+	return 'valid';
+else 
+	return 'invalid';
+end if;
+end fndisplay;
+----------------------------
+procudure prdiscount(authid varchar2,status varchar2) as
+ans varchar2(20);
+
+``````````````````````````````````````````````````````````````````````````````
+create or replace package manage_emp as
+
+procedure hire_emp(emn int,enam varchar2,joba varchar2,saly number,manag int,dep int,comma number default null,hiredata date default sysdate);
+procedure fire_emp(emn1 int);
+
+ans boolean;
+v_ins int default 0;
+v_dele int default 0;
+end;
+/
+==================================================
+
+create or replace package body manage_emp as function val_emp(id int) return boolean as
+
+cnt int;
+
+begin
+
+select count(ename) into cnt from emp where empno=id;
+
+if cnt=1 then
+	return true;
+else
+	return false;
+end if;
+
+exception
+
+when others then
+	dbms_output.put_line('fun_error');
+
+end  val_emp;
+-----------------------------------
+
+function val_dept(de int) return boolean as
+cnt1 varchar2(20);
+
+begin
+
+select dname into cnt1 from dept where deptno=de;
+
+if cnt1 is not null then
+	return true;
+end if;
+
+exception
+
+when no_data_found then 
+	return false;	
+end val_dept;
+------------------------------------
+procedure hire_emp(emn int,enam varchar2,joba varchar2,saly number,manag int,dep int,comma number default null,hiredata date default sysdate) as
+
+ab1 exception;
+ab2 exception;
+ab3 exception;
+
+pragma exception_init(ab1,-45000);
+pragma exception_init(ab2,-45001);
+pragma exception_init(ab3,-45002);
+
+ans1 boolean;
+ans2 boolean;
+
+begin
+
+ans:=val_emp(emn);
+ans1:=val_emp(manag);
+ans2:=val_dept(dep);
+
+dbms_output.put_line('yo');
+
+if ans=true  then
+	raise ab1;
+elsif ans1=false then
+	raise ab2;
+elsif ans2=false then
+	raise ab3;
+else
+	insert into emp(empno,ename,mgr,job,sal,deptno,comm,hiredate) values(emn,enam,manag,joba,saly,dep,comma,hiredata);
+	dbms_output.put_line('added');
+end if;
+
+exception
+
+when others then
+	if sqlcode=-45000 then
+		dbms_output.put_line('emp exits');
+	elsif sqlcode=-45001 then
+		dbms_output.put_line('no manager');
+	elsif sqlcode=-45002 then
+		dbms_output.put_line('wrong dept');
+	end if;
+end ;
+-------------------------------------------
+
+procedure fire_emp(emn1 int) as
+
+begin
+
+ans:=val_emp(emn1);
+
+if ans=true then
+	delete from emp where empno=emn1;
+else 
+	dbms_output.put_line('emp doesnt exits');
+end if;
+end;
+end manage_emp;
+/
+
+````````````````````````````````````````````````````````````````````````````````
+
+d5q3
+
+create or replace package plans1 as
+
+function find_plan return number;
+procedure display_plan;
+
+end;
+/
+===============================================
+
+create or replace package body plans1 as
+function find_plan return number as
+
+ans number;
+
+begin
+
+select plan_id into ans from customers group by plan_id having count(plan_id)=(select max(count(plan_id)) from customers group by plan_id);
+
+return ans;
+
+end find_plan;
+---------------------------------------
+
+procedure display_plan as
+id number;
+nama varchar2(20);
+
+begin
+
+id:=find_plan;
+
+select plan_name into nama from plans where plan_id=id;
+
+dbms_output.put_line('Plan_id:='||id||chr(9)||'Plan name:='||nama);
+
+end ;
+
+end plans1;
+/
+``````````````````````````````````````````````````````````````````````````````
+d5
+
+create or replace package movie_pack as
+
+procedure prNewMovie(movname varchar2,lang varchar2,gen varchar2,dura number,reladate date default sysdate);
+
+end;
+/
+=======================================
+
+create or replace package body movie_pack as
+
+function fnGenerateID return varchar2 as
+
+cnt varchar2(20);
+
+begin
+select concat('Mov',(select substr((select max(movie_id) from movie_details),4)+1 from dual)) into cnt from dual;
+
+return cnt;
+
+end fnGenerateID;
+-------------------
+procedure prNewMovie(movname varchar2,lang varchar2,gen varchar2,dura number,reladate date default sysdate) as
+nam varchar2(30);
+
+begin
+
+nam:=fnGenerateID;
+insert into movie_details(movie_id,movie_name,language,genre,duration,date_of_release) values(nam,movname,lang,gen,dura,reladate);
+
+dbms_output.put_line('1 Row Added');
+
+end;
+end movie_pack;
+/
+`````````````````````````````````````````````````````````
+d5q6
+
+create or replace package pkg_transports as
+
+ab1 exception;
+procedure show_details(rouno varchar2);
+
+end;
+/
+==========================================
+
+create or replace package body pkg_transports as
+procedure show_details(rouno varchar2) as
+
+cnt int;
+ab2 exception;
+cnt1 varchar2(1);
+
+cursor abc is select * from schedule where route_no=rouno;
+edata abc%rowtype;
+
+begin
+
+select length(rouno) into cnt from dual;
+select substr(rouno,1,1) into cnt1 from dual;
+
+
+if cnt1='r' and cnt=4 then 
+	select count(routeno) into cnt from route where routeno=rouno;
+	if cnt=1 then
+		open abc;
+		dbms_output.put_line('Route no:'||rouno);
+		dbms_output.put_line('-----------------------------------------------------------');
+		dbms_output.put_line('SCHEDULE_ID'||chr(9)||'BUS ID'||chr(9)||'START TIME');
+		dbms_output.put_line('==========================================================');
+		loop
+			fetch abc into edata;
+			exit when abc%notfound;
+			dbms_output.put_line(edata.SCHEDULE_ID||chr(9)||edata.bus_no||chr(9)||edata.START_TIME);
+		end loop;
+		close abc;
+	else
+		raise ab1;
+	end if;
+else
+	raise ab2;
+end if;
+
+
+exception
+
+when ab1 then
+	dbms_output.put_line('Route not Found');
+when ab2 then
+	dbms_output.put_line('Invalid Route');
+
+end;
+end pkg_transports;
+/
+`````````````````````````````````````````````````
+
+d6q1
+
+create type MARk_TYPE as object(
+	subject varchar2(25),
+	midterm number(3),
+	annualterm number(3));
+/
+-------------------------------------------
+create table MYMarks (
+	column1 mark_type);
+-------------------------------------------
+insert into mymarks values(mark_type('maths',97,93));
+
+insert into mymarks values(mark_type('science',80,95));
+
+SELECT C.COLUMN1.ANNUALTERM,C.COLUMN1.MIDTERM FROM MYMARKS C WHERE C.COLUMN1.SUBJECT='maths';
+
+select c.column1.midterm,c.column1.annualterm from mymarks c where c.column1.subject='science';
+```````````````````````````````````````````````````````````````````````
+D6Q2
+
+CREATE TYPE MY_MARK1 AS OBJECT(
+	SUB VARCHAR2(20),
+	MIDTERM NUMBER(3),
+	ANNUALTERM NUMBER(3));
+/
+------------------
+CREATE TYPE MY_MARK12 AS TABLE OF MY_MARK1;
+/
+------------------
+
+CREATE TABLE STUDENTS(
+	STU_NAME VARCHAR2(20),
+	ROLLNO NUMBER(3),
+	SCORE MY_MARK12)NESTED TABLE SCORE STORE AS P12;
+
+INSERT INTO STUDENTS VALUES('OMKAR',444,MY_MARK12(MY_MARK1('MATHS',90,99)));
+
+INSERT INTO STUDENTS VALUES('RAHUL',555,MY_MARKS12(MY_MARK1('SCIENCE',90,91),MY_MARK1('HISTORY',89,90),MY_MARK1('GEO',50,60));
+
+ INSERT INTO TABLE(SELECT SCORE FROM STUDENTS WHERE ROLLNO=444) VALUES(MY_MARK1('HISTORY',89,90));
+
+INSERT INTO TABLE(SELECT SCORE FROM STUDENTS WHERE ROLLNO=555) VALUES(MY_MARK1('HINDI',80,85));
+
+SELECT C.ROLLNO,D.SUB,D.MIDTERM FROM STUDENTS C,TABLE(C.SCORE) D;
+
+SELECT C.ROLLNO,C.STU_NAME,D.MIDTERM,D.ANNUALTERM FROM STUDENTS C,TABLE(C.SCORE) D;
+
+UPDATE TABLE(SELECT SCORE FROM STUDENTS WHERE ROLLNO=444) SET MIDTERM=95 WHERE SUB='MATHS';
+
+DELETE FROM TABLE(SELECT SCORE FROM STUDENTS WHERE ROLLNO=444) WHERE SUB='MATHS';
+
+``````````````````````````````````````````````````````````````````````
+D6Q4
+
+CREATE TYPE SKILLS_TYPE AS OBJECT(
+	SKILL_ID NUMBER(2),
+	SKILL_NAME VARCHAR2(20),
+	SKILL_RATING NUMBER(2));
+/
+
+CREATE TYPE SKILL_TYPE1 AS TABLE OF SKILLS_TYPE;
+/
+
+CREATE TABLE EMPMAIN(
+	EMP_NO NUMBER(4) PRIMARY KEY,
+	EMP_NAME VARCHAR(30),
+	ALL_SKILLS SKILL_TYPE1)NESTED TABLE ALL_SKILLS STORE AS SKILL1;
+
+INSERT INTO EMPMAIN VALUES(1001,'AMAN DEV',SKILL_TYPE1(SKILLS_TYPE(11,'DESIGN',9),SKILLS_TYPE(21,'CODE',10)));
+
+INSERT INTO TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMP_NO=1001) VALUES(SKILLS_TYPE(31,'COPYING',99));
+
+UPDATE TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMP_NO=1001) SET SKILL_RATING=10 WHERE SKILL_ID=11;
+
+INSERT INTO TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMP_NO=1001) VALUES(SKILLS_TYPE(40,NULL,1));
+
+DELETE FROM TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMP_NO=1001) WHERE SKILL_NAME IS NULL;
+----------------------------------
+
+CREATE OR REPLACE PROCEDURE ADD_SKILL(EMN NUMBER,SKID NUMBER,SKNAME VARCHAR2,SKRATE NUMBER) AS
+
+BEGIN
+
+INSERT INTO TABLE(SELECT ALL_SKILLS FROM EMPMAIN WHERE EMP_NO=EMN) VALUES(SKILLS_TYPE(SKID,SKNAME,SKRATE));
+
+DBMS_OUTPUT.PUT_LINE('YO');
+
+END;
+------------------------------
+
+BEGIN
+
+ADD_SKILL(1001,51,'ABC',5);
+
+END;
+```````````````````````````````````````````````````````````````````
+D6Q4
+
+CREATE TYPE VEHICLE_TYPE AS OBJECT(
+	VEHICLE_NO VARCHAR2(12),
+	MONTHLY_EX NUMBER(7));
+/
+
+CREATE TYPE VEHICAL_ARR IS VARRAY(10) OF VEHICLE_TYPE;
+
+
+CREATE TABLE EMP_VARRAY1(
+	EMP_NO NUMBER(4) PRIMARY KEY,
+	EMP_NAME VARCHAR2(30),
+	VEHICAL_LIST VEHICAL_ARR);
+/
+
+INSERT INTO EMP_VARRAY1 VALUES(1111,'SAM',VEHICAL_ARR(VEHICLE_TYPE('MH12-5588',500),VEHICLE_TYPE('MH11-72',1000)));
+
+SELECT A.EMP_NO,B.VEHICLE_NO FROM EMP_VARRAY1 A, TABLE(A.VEHICAL_LIST) B;
+
+******INSERT INTO TABLE(SELECT VEHICAL_LIST FROM EMP_VARRAY1 WHERE EMP_NO=1111) VALUES(VEHICAL_ARR(VEHICLE_TYPE('MH33-524',500)));*****
+`````````````````````````````````````````````````````````````````
+
+D6Q6
+
+CREATE TYPE INCREMENT_TYPE AS OBJECT(
+	INCR_ID NUMBER(3),
+	INCR_DATE DATE,
+	INCR_AMT NUMBER(7));
+/
+
+CREATE TYPE SKILL_TYPE3 AS OBJECT(
+	SKILL_ID NUMBER(3),
+	SKILL_NAME VARCHAR2(10),
+	SKILL_RATE NUMBER(2));
+/
+
+CREATE TYPE INCR_TYPE AS TABLE OF INCREMENT_TYPE;
+/
+
+CREATE TYPE SKILLS AS TABLE OF SKILL_TYPE3;
+/
+
+CREATE TABLE EMPMAIN3(
+	EMP_NO NUMBER(4),
+	EMP_NAME CHAR(30),
+	EMP_SKILLS SKILLS,
+	EMP_INCR INCR_TYPE)NESTED TABLE EMP_SKILLS STORE AS SK1,NESTED TABLE EMP_INCR STORE AS INCR;
+/
+
+INSERT INTO EMPMAIN3 VALUES(1001,'SAM',SKILLS(SKILL_TYPE3(11,'CODE',9),SKILL_TYPE3(12,'SQL',9.5)),INCR_TYPE(INCREMENT_TYPE(99,SYSDATE,5000),INCREMENT_TYPE(98,TO_DATE('12/01/1994','DD/MM/YYYY'),6000)));
+
+INSERT INTO EMPMAIN3 VALUES(1002,'KING',SKILLS(SKILL_TYPE3(11,'UNIX',8),SKILL_TYPE3(12,'SQL',9)),INCR_TYPE(INCREMENT_TYPE(99,SYSDATE,400),INCREMENT_TYPE(98,SYSDATE,500)));
+
+SELECT A.EMP_NO,A.EMP_NAME,B.SKILL_NAME,B.SKILL_NAME,C.INCR_DATE,C.INCR_AMT FROM EMPMAIN3 A,TABLE(A.EMP_INCR) C,TABLE(A.EMP_SKILLS) B;
+
+SELECT B.SKILL_NAME FROM EMPMAIN3 A,TABLE(A.EMP_SKILLS) B;
+
+------------------------------------
+PROCEDURE
+=============
+
+CREATE OR REPLACE PROCEDURE D6Q6(EMN NUMBER) AS
+
+CURSOR AB IS SELECT EMP_NO,EMP_NAME FROM EMPMAIN3 WHERE EMP_NO=EMN;
+EDATA1 AB%ROWTYPE;
+
+CURSOR SKI IS SELECT B.SKILL_ID,B.SKILL_NAME,B.SKILL_RATE FROM EMPMAIN3 A,TABLE(A.EMP_SKILLS) B WHERE EMP_NO=EMN;
+EDATA2 SKI%ROWTYPE;
+
+CURSOR INCR IS SELECT B.INCR_ID,B.INCR_DATE,B.INCR_AMT FROM EMPMAIN3 A,TABLE(A.EMP_INCR) B WHERE EMP_NO=EMN;
+
+EDATA INCR%ROWTYPE;
+
+BEGIN
+OPEN AB;
+LOOP
+	FETCH AB INTO EDATA1;
+	EXIT WHEN AB%NOTFOUND;
+	
+		DBMS_OUTPUT.PUT_LINE('EMP NO:'||EDATA1.EMP_NO||CHR(9)||'EMP NAME:'||EDATA1.EMP_NAME);
+		DBMS_OUTPUT.PUT_LINE('==================================================');
+		DBMS_OUTPUT.PUT_LINE('SKILL SET');
+		DBMS_OUTPUT.PUT_LINE('--------------------------------------------------');
+
+	OPEN SKI;
+	LOOP
+		FETCH SKI INTO EDATA2;
+		EXIT WHEN SKI%NOTFOUND;
+		
+		DBMS_OUTPUT.PUT_LINE('SKILL ID:'||EDATA2.SKILL_ID||CHR(9)||'SKILL NAME:'||EDATA2.SKILL_NAME||CHR(9)||'RATING:'||EDATA2.SKILL_RATE);
+	END LOOP;
+	CLOSE SKI;
+	OPEN INCR;
+	DBMS_OUTPUT.PUT_LINE('-------------------------------------------------');
+	DBMS_OUTPUT.PUT_LINE('INCREMENT');
+	DBMS_OUTPUT.PUT_LINE('-------------------------------------------------');
+	LOOP
+		FETCH INCR INTO EDATA;
+		EXIT WHEN INCR%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE('INCR ID:'||EDATA.INCR_ID||CHR(9)||'INCR DATE:'||EDATA.INCR_DATE||CHR(9)||'AMOUNT:'||EDATA.INCR_AMT);
+	END LOOP;
+	CLOSE INCR;
+END LOOP;
+
+END;
+/
+------------------------------------------
+ EXEC D6Q6(1002);
+
+EMP NO:1002     EMP NAME:KING
+==================================================
+SKILL SET
+--------------------------------------------------
+SKILL ID:11     SKILL NAME:UNIX RATING:8
+SKILL ID:12     SKILL NAME:SQL  RATING:9
+-------------------------------------------------
+INCREMENT
+-------------------------------------------------
+INCR ID:99      INCR DATE:09-APR-17     AMOUNT:400
+INCR ID:98      INCR DATE:09-APR-17     AMOUNT:500
+
+PL/SQL procedure successfully completed.
+===============================
